@@ -1,21 +1,16 @@
 package com.stockSync.backend.auth.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.NullMarked;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@NullMarked
-public class AuthResponse {
-
+public class RegisterReponse {
     private String token;
+    private String message;
     private String email;
-    private String nombre;
-    private String role;
 }

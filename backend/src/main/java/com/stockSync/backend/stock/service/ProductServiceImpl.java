@@ -54,6 +54,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public long countAllProducts() {
+        return productRepository.count();
+    }
+
+    @Override
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
         //Validar si el SKU ya existe para evitar duplicados
@@ -100,4 +105,6 @@ public class ProductServiceImpl implements ProductService {
         }
         productRepository.deleteById(id);
     }
+
+
 }

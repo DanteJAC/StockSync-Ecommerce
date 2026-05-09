@@ -59,6 +59,10 @@ public class WarehouseServiceImpl implements WarehouseService {
         warehouseRepository.deleteById(id);
     }
 
+    @Override
+    public long countAllWarehouse() {
+        return warehouseRepository.count();
+    }
 
 
 }

@@ -13,7 +13,7 @@ public interface ProductService {
     ProductResponse getProductById(Long id);
     List<ProductResponse> searchProductsByName(String name);
     List<ProductResponse> getProductsByCategoryId(Long categoryId);
-
+    long countAllProducts();
 
     //Escritura
     ProductResponse createProduct(ProductRequest request);

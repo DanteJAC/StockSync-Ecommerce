@@ -1,9 +1,11 @@
 spring:
   application:
     name: StockSync Backend
-
   config:
-    import: optional:file:.env[.properties]
+    import: "optional:file:.env[.properties]"
+  thymeleaf:
+    cache: false
+
 
   # Database Configuration
   datasource:
@@ -36,7 +38,15 @@ server:
 # Logging Configuration
 logging:
   level:
+    org.springframework.security: INFO
     root: INFO
-    com.stockSync: DEBUG
+    com.stockSync:
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# Esta sección va aparte, NO dentro de spring:
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+

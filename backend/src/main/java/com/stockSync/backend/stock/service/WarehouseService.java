@@ -2,7 +2,6 @@ package com.stockSync.backend.stock.service;
 
 import com.stockSync.backend.stock.dto.WarehouseRequest;
 import com.stockSync.backend.stock.dto.WarehouseResponse;
-
 import java.util.List;
 
 
@@ -14,4 +13,5 @@ public interface WarehouseService {
     WarehouseResponse updateWarehouse(Long id, WarehouseRequest request);
     void deleteWarehouse(Long id);
 
+    long countAllWarehouse();
 }

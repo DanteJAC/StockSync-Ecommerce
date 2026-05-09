@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro - StockSync Admin</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body class="admin-login-body">
+<div class="login-container">
+    <h1>StockSync Admin</h1>
+    <p>Crea una cuenta de administrador</p>
+
+    <form id="registerForm">
+        <label>
+            <input type="text"     name="nombre"   placeholder="Nombre Completo"       required>
+        </label>
+        <label>
+            <input type="email"    name="email"    placeholder="Correo electrónico"     required>
+        </label>
+        <label>
+            <input type="password" name="password" placeholder="Contraseña (mín. 8 caracteres)" required minlength="8">
+        </label>
+
+        <p id="errorMsg" style="color:red; display:none;"></p>
+
+        <button type="submit">Registrar Usuario</button>
+    </form>
+
+    <div class="footer-links">
+        <a th:href="@{/login}">¿Ya tienes cuenta? Inicia sesión</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+     e.preventDefault();
+
+     const formData = new FormData(e.target);
+     const data = Object.fromEntries(formData.entries());
+     const errorMsg = document.getElementById('errorMsg');
+     errorMsg.style.display = 'none';
+
+     if (!data.nombre.trim() || !data.email.trim() || !data.password) {
+         errorMsg.textContent = 'Todos los campos son obligatorios.';
+         errorMsg.style.display = 'block';
+         return;
+     }
+
+     if (data.password.length < 6) {  // ← sincronizado con @Size(min=6) del backend
+         errorMsg.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+         errorMsg.style.display = 'block';
+         return;
+     }
+
+     const btn = e.target.querySelector('button[type="submit"]');
+     btn.disabled = true;
+     btn.textContent = 'Registrando...';
+
+     try {
+         const response = await fetch('/register', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify(data)
+         });
+
+         // ✅ Leer body de forma segura — puede estar vacío en errores 403/500
+         let result = {};
+         const contentType = response.headers.get('Content-Type');
+         if (contentType && contentType.includes('application/json')) {
+             result = await response.json();
+         }
+
+         if (response.ok) {
+             alert('Usuario creado con exito! Ahora puedes iniciar sesion.');
+             window.location.href = '/login';
+         } else {
+             const errorText = result.message
+                 || Object.values(result)[0]
+                 || 'Error ' + response.status + ': registro rechazado.';
+             errorMsg.textContent = errorText;
+             errorMsg.style.display = 'block';
+         }
+
+     } catch (error) {
+         console.error('Error de conexion:', error);
+         errorMsg.textContent = 'No se pudo conectar con el servidor.';
+         errorMsg.style.display = 'block';
+     } finally {
+         btn.disabled = false;
+         btn.textContent = 'Registrar Usuario'; // ✅ sin caracteres especiales
+     }
+ });
+</script>
+</body>
+</html>

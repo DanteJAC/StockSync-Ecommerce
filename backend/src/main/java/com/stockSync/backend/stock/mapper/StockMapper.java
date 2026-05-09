@@ -11,7 +11,9 @@ import java.util.List;
 public interface StockMapper {
 
     //Mapea campos anidados de entity.getProduct().getName() a dto.productName
+    @Mapping(source = "product.id", target = "productId")
     @Mapping(source = "product.name", target = "productName")
+    @Mapping(source = "warehouse.id", target = "warehouseId")
     @Mapping(source = "warehouse.name", target = "warehouseName")
     StockResponse toResponse(Stock entity);
 
