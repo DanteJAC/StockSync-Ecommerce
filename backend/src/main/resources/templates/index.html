@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="StockSync - Gestion de inventarios y E-commerce">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+    <link rel="stylesheet" th:href="@{/css/normalize.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>StockSync - Inicio</title>
+</head>
+<body>
+
+    <header th:replace="~{fragments/header :: header(paginaActiva=${paginaActiva})}"></header>
+
+    <section class="hero">
+        <div class="hero__container">
+            <div class="hero__grid">
+                <div class="hero__info">
+                    <h1 class="hero__title">
+                        Bienvenido a <span class="hero__span">StockSync</span>
+                    </h1>
+                    <p class="hero__par">
+                        Sistema de gestión de inventarios y e-commerce.
+                        Controla tus productos, bodegas y stock en tiempo real.
+                    </p>
+                    <div class="hero__buttons">
+                        <a th:href="@{/login}"><button class="hero__button">Iniciar Sesión</button></a>
+                        <a th:href="@{/register}"><button class="hero__button hero__button--secondary">Registrarse</button></a>
+                    </div>
+                </div>
+                <div class="hero__image">
+                    <div class="hero__img-placeholder">
+                        <span class="hero__img-icon">📦</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section__container">
+            <h2 class="section__title">Estadísticas</h2>
+            <div class="section__grid stats__grid" th:if="${totalProductos != null or totalBodegas != null or totalCategorias != null}">
+                <div class="stat__card" th:if="${totalProductos != null}">
+                    <span class="stat__icon">📦</span>
+                    <span class="stat__number" th:text="${totalProductos}">0</span>
+                    <span class="stat__label">Productos</span>
+                </div>
+                <div class="stat__card" th:if="${totalBodegas != null}">
+                    <span class="stat__icon">🏭</span>
+                    <span class="stat__number" th:text="${totalBodegas}">0</span>
+                    <span class="stat__label">Bodegas</span>
+                </div>
+                <div class="stat__card" th:if="${totalCategorias != null}">
+                    <span class="stat__icon">📂</span>
+                    <span class="stat__number" th:text="${totalCategorias}">0</span>
+                    <span class="stat__label">Categorías</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section--alt">
+        <div class="section__container">
+            <h2 class="section__title">Productos Destacados</h2>
+
+            <div th:if="${productos == null or productos.isEmpty()}" class="empty-state">
+                <span class="empty-state__icon">🔍</span>
+                <p class="empty-state__text">No hay productos registrados.</p>
+            </div>
+
+            <div class="product__grid" th:unless="${productos == null or productos.isEmpty()}">
+                <div class="product__card" th:each="prod : ${productos}">
+                    <div class="product__content">
+                        <span class="product__code" th:text="${prod.sku}">SKU-001</span>
+                        <h3 class="product__title" th:text="${prod.name}">Producto</h3>
+                        <p class="product__desc" th:text="${prod.description}">Descripción</p>
+                        <div class="product__info">
+                            <p class="product__price">
+                                <span th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT')}">0</span> CLP
+                            </p>
+                            <span class="product__category" th:text="${prod.categoryName}">Categoría</span>
+                        </div>
+                        <p class="product__stock-label" th:text="'Stock: ' + ${prod.stock} + ' unidades'">Stock: 0 unidades</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section__container">
+            <h2 class="section__title">Categorías</h2>
+
+            <div th:if="${categorias == null or categorias.isEmpty()}" class="empty-state">
+                <span class="empty-state__icon">📂</span>
+                <p class="empty-state__text">No hay categorías registradas.</p>
+            </div>
+
+            <div class="stats__grid" th:unless="${categorias == null or categorias.isEmpty()}">
+                <div class="stat__card" th:each="cat : ${categorias}">
+                    <span class="stat__label" th:text="${cat.name}">Categoría</span>
+                    <p th:text="${cat.description}">Descripción</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section--alt">
+        <div class="section__container">
+            <h2 class="section__title">Enlaces Rápidos</h2>
+            <div class="stats__grid">
+                <a th:href="@{/productos}" class="stat__card stat__card--link">
+                    <span class="stat__icon">📋</span>
+                    <span class="stat__label">Ver Productos</span>
+                </a>
+                <a th:href="@{/admin/dashboard}" class="stat__card stat__card--link">
+                    <span class="stat__icon">⚙️</span>
+                    <span class="stat__label">Panel Admin</span>
+                </a>
+                <a th:href="@{/admin/stock}" class="stat__card stat__card--link">
+                    <span class="stat__icon">📊</span>
+                    <span class="stat__label">Gestión de Stock</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>
