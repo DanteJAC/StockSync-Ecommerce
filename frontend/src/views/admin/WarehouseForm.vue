@@ -7,7 +7,7 @@
         {{ error }}
       </v-alert>
 
-      <v-form @submit.prevent="handleSave">
+      <v-form ref="formRef" @submit.prevent="handleSave">
         <v-row>
           <v-col cols="12" md="6">
             <v-text-field
@@ -29,12 +29,16 @@
             <v-text-field
               v-model="form.address"
               label="Dirección"
+              :rules="[rules.required]"
+              required
             />
           </v-col>
           <v-col cols="12" md="6">
             <v-text-field
               v-model="form.city"
               label="Ciudad"
+              :rules="[rules.required]"
+              required
             />
           </v-col>
         </v-row>
@@ -66,6 +70,7 @@ import { useWarehousesStore } from '../../stores/warehouses'
 const route = useRoute()
 const router = useRouter()
 const store = useWarehousesStore()
+const formRef = ref(null)
 
 const isEdit = computed(() => !!route.params.id)
 const saving = ref(false)
@@ -83,6 +88,8 @@ const rules = {
 }
 
 async function handleSave() {
+  const { valid } = await formRef.value.validate()
+  if (!valid) { saving.value = false; return }
   saving.value = true
   error.value = ''
   try {
