@@ -17,7 +17,7 @@
             <th>SKU</th>
             <th>Categoría</th>
             <th>Precio</th>
-            <th>Stock</th>
+            <th>Bodegas</th>
             <th>Activo</th>
             <th>Acciones</th>
           </tr>
@@ -29,9 +29,18 @@
             <td>{{ product.categoryName }}</td>
             <td>${{ formatPrice(product.price) }}</td>
             <td>
-              <v-chip :color="product.stock > 0 ? 'success' : 'error'" size="small">
-                {{ product.stock }}
-              </v-chip>
+              <template v-if="product.warehouseStocks && product.warehouseStocks.length">
+                <v-chip
+                  v-for="ws in product.warehouseStocks"
+                  :key="ws.warehouseId"
+                  size="x-small"
+                  class="ma-1"
+                  :color="ws.quantity > 0 ? 'success' : 'error'"
+                >
+                  {{ ws.warehouseName }}: {{ ws.quantity }}
+                </v-chip>
+              </template>
+              <span v-else class="text-medium-emphasis">—</span>
             </td>
             <td>
               <v-icon :color="product.active ? 'success' : 'grey'">
