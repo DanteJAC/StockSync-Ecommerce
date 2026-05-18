@@ -13,7 +13,9 @@ import com.stockSync.backend.stock.repository.CategoryRepository;
 import com.stockSync.backend.stock.repository.ProductRepository;
 import com.stockSync.backend.stock.repository.StockRepository;
 import com.stockSync.backend.stock.repository.WarehouseRepository;
+import com.stockSync.backend.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,10 +34,14 @@ public class ProductServiceImpl implements ProductService {
     private final WarehouseRepository warehouseRepository;
     private final ProductMapper productMapper;
 
+    private User getCurrentUser() {
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findByUserId(getCurrentUser().getId());
         List<ProductResponse> responses = productMapper.toResponseList(products);
         populateWarehouseStocks(responses);
         return responses;
@@ -46,6 +52,9 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto con ID: " + id + " no encontrado"));
+        if (!product.getUser().getId().equals(getCurrentUser().getId())) {
+            throw new RuntimeException("Producto no encontrado");
+        }
         ProductResponse response = productMapper.toResponse(product);
         List<Stock> stocks = stockRepository.findByProductId(id);
         response.setWarehouseStocks(toWarehouseStockInfo(stocks));
@@ -55,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> searchProductsByName(String name) {
-        List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
+        List<Product> products = productRepository.findByNameContainingIgnoreCaseAndUserId(name, getCurrentUser().getId());
         List<ProductResponse> responses = productMapper.toResponseList(products);
         populateWarehouseStocks(responses);
         return responses;
@@ -67,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
         if (!categoryRepository.existsById(categoryId)) {
             throw new RuntimeException("Categoria no encontrada");
         }
-        List<Product> products = productRepository.findByCategoryId(categoryId);
+        List<Product> products = productRepository.findByCategoryIdAndUserId(categoryId, getCurrentUser().getId());
         List<ProductResponse> responses = productMapper.toResponseList(products);
         populateWarehouseStocks(responses);
         return responses;
@@ -75,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public long countAllProducts() {
-        return productRepository.count();
+        return productRepository.countByUserId(getCurrentUser().getId());
     }
 
     @Override
@@ -85,11 +94,14 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("El SKU " + request.getSku() + " ya existe");
         }
 
+        User currentUser = getCurrentUser();
+
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Categoria no encontrada."));
 
         Product product = productMapper.toEntity(request);
         product.setCategory(category);
+        product.setUser(currentUser);
 
         long totalStock = 0;
         if (request.getWarehouseStocks() != null) {
@@ -106,6 +118,7 @@ public class ProductServiceImpl implements ProductService {
                 Warehouse warehouse = warehouseRepository.findById(entry.getWarehouseId())
                         .orElseThrow(() -> new RuntimeException("Bodega con ID: " + entry.getWarehouseId() + " no encontrada"));
                 Stock stock = new Stock(product, warehouse, entry.getQuantity());
+                stock.setUser(currentUser);
                 stockRepository.save(stock);
             }
         }
@@ -119,8 +132,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request) {
+        User currentUser = getCurrentUser();
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto con ID: " + id + " no encontrado"));
+
+        if (!product.getUser().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Producto no encontrado");
+        }
 
         productMapper.updateEntityFromRequest(request, product);
 
@@ -141,8 +159,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public void deleteProduct(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new RuntimeException("No se puede eliminar: Producto no encontrado");
+        User currentUser = getCurrentUser();
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se puede eliminar: Producto no encontrado"));
+        if (!product.getUser().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Producto no encontrado");
         }
         productRepository.deleteById(id);
     }
@@ -154,7 +175,7 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductResponse::getId)
                 .collect(Collectors.toList());
 
-        List<Stock> allStocks = stockRepository.findAll().stream()
+        List<Stock> allStocks = stockRepository.findByUserId(getCurrentUser().getId()).stream()
                 .filter(s -> productIds.contains(s.getProduct().getId()))
                 .collect(Collectors.toList());
 

@@ -33,7 +33,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/icons.svg").permitAll()
                         .requestMatchers("/api/login", "/api/register").permitAll()
-                        .requestMatchers("/api/v1/**", "/api/users/**", "/api/admin/**").authenticated()
+                        .requestMatchers("/api/users/invite").hasRole("ADMIN")
+                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/admin/**").authenticated()
+                        .requestMatchers("/v1/products/**").hasAnyRole("ADMIN", "LOCAL")
+                        .requestMatchers("/v1/warehouses/**").hasAnyRole("ADMIN", "BODEGA")
+                        .requestMatchers("/v1/stocks/**").authenticated()
+                        .requestMatchers("/v1/categories/**").authenticated()
                         .anyRequest().permitAll()
                 )
 

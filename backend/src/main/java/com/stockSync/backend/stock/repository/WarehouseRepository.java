@@ -9,4 +9,5 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
 
     boolean existsByCode(String code);
     List<Warehouse> findByUserId(Long userId);
+    long countByUserId(Long userId);
 }
