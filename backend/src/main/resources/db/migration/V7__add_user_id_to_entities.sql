@@ -1,0 +1,4 @@
+ALTER TABLE products ADD COLUMN user_id BIGINT REFERENCES users(id);
+ALTER TABLE warehouses ADD COLUMN user_id BIGINT REFERENCES users(id);
+ALTER TABLE categories ADD COLUMN user_id BIGINT REFERENCES users(id);
+ALTER TABLE stocks ADD COLUMN user_id BIGINT REFERENCES users(id);

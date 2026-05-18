@@ -1,8 +1,8 @@
 package com.stockSync.backend.stock.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
+import lombok.*;
+import com.stockSync.backend.user.model.User;
 
 import java.time.LocalDate;
 
@@ -30,6 +30,12 @@ public class Warehouse {
 
     @Column(name = "date", nullable = false)
     private LocalDate createAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private User user;
 
     @PrePersist
     public void prePersist() {

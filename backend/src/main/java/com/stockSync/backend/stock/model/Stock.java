@@ -1,10 +1,9 @@
 package com.stockSync.backend.stock.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.stockSync.backend.user.model.User;
 
 import java.time.LocalDateTime;
 
@@ -32,6 +31,12 @@ public class Stock {
 
     @UpdateTimestamp
     private LocalDateTime lastUpdate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private User user;
 
     public Stock(Product product, Warehouse warehouse, Integer quantity) {
         this.product = product;
