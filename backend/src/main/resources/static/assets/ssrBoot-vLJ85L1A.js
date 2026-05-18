@@ -1,0 +1,1 @@
+import{Dn as e,jn as t,kn as n,ln as r}from"./router-F8ZhDmlz.js";function i(){let i=n(!1);return r(()=>{window.requestAnimationFrame(()=>{i.value=!0})}),{ssrBootStyles:t(()=>i.value?void 0:{transition:`none !important`}),isBooted:e(i)}}export{i as t};

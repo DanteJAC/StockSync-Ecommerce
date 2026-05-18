@@ -18,11 +18,6 @@ public class UserController {
     public ResponseEntity<List<User>> list() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
-    @GetMapping("/admin/usuarios")
-    public String listUsersPage() {
-        return "admin/usuarios"; // Carga templates/admin/usuarios.html
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remove(@PathVariable Long id) {
         userService.deleteUser(id);

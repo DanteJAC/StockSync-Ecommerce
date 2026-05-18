@@ -7,6 +7,7 @@ import com.stockSync.backend.stock.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,13 +34,13 @@ public class WarehouseController {
     }
 
     @PostMapping //CREA LAS BODEGAS
-    public ResponseEntity<WarehouseResponse> createWarehouse(@RequestBody WarehouseRequest request){
+    public ResponseEntity<WarehouseResponse> createWarehouse(@Valid @RequestBody WarehouseRequest request){
         //SI EL CODIGO EXISTE, EL SERVICIO LANZA EXCEPCION Y EL HANDLER RESPONDE
         return ResponseEntity.status(HttpStatus.CREATED).body(warehouseService.createWarehouse(request));
     }
 
     @PutMapping("/{id}") //ACTUALIZA DATOS DE LAS BODEGAS
-    public ResponseEntity<WarehouseResponse> updateWarehouse(@PathVariable Long id, @RequestBody WarehouseRequest request){
+    public ResponseEntity<WarehouseResponse> updateWarehouse(@PathVariable Long id, @Valid @RequestBody WarehouseRequest request){
         //LOGICA DE "NO ENCONTRADO" ESTA EN  EL SERVICE
         return ResponseEntity.ok(warehouseService.updateWarehouse(id, request));
 

@@ -3,9 +3,6 @@ spring:
     name: StockSync Backend
   config:
     import: "optional:file:.env[.properties]"
-  thymeleaf:
-    cache: false
-
 
   # Database Configuration
   datasource:

@@ -31,9 +31,10 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/admin/**").permitAll()  // ✅ vistas Thymeleaf libres
-                        .anyRequest().authenticated()             // APIs REST protegidas por JWT
+                        .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/icons.svg").permitAll()
+                        .requestMatchers("/api/login", "/api/register").permitAll()
+                        .requestMatchers("/api/v1/**", "/api/users/**", "/api/admin/**").authenticated()
+                        .anyRequest().permitAll()
                 )
 
                 // 4. MANEJO DE SESIÓN: Stateless porque usamos tokens
