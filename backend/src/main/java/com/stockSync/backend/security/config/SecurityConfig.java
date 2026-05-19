@@ -35,10 +35,10 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/icons.svg").permitAll()
 
                         // 2. Endpoints de autenticación (los únicos públicos de la API)
-                        .requestMatchers("/api/login", "/api/register").permitAll()
+                        .requestMatchers("/login", "/register").permitAll()
 
                         // 3. Proteger estrictamente el backend (API)
-                        .requestMatchers("/api/v1/**", "/api/users/**", "/api/admin/**").authenticated()
+                        .requestMatchers("/v1/**", "/api/users/**", "/api/admin/**").authenticated()
 
                         // 4. Permitir que Vue maneje sus propias rutas (ej. /admin, /login)
                         // Esto evita que Spring intente autenticar rutas que son del frontend

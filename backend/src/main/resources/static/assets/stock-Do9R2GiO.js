@@ -1,0 +1,1 @@
+import{r as e}from"./router-CZnc_p2Y.js";function t(){return e.get(`/v1/stocks`)}function n(t){return e.get(`/v1/stocks/warehouse/${t}`)}function r(t){return e.post(`/v1/stocks/add`,t)}function i(t){return e.put(`/v1/stocks/update`,t)}function a(t){return e.post(`/v1/stocks/transfer`,t)}function o(t){return e.delete(`/v1/stocks/${t}`)}export{a,n as i,o as n,i as o,t as r,r as t};
