@@ -2,15 +2,14 @@ package com.stockSync.backend.stock.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import com.stockSync.backend.user.model.User;
-
-import java.time.LocalDate;
+import java.time.LocalDateTime; // <-- Asegúrate de importar LocalDateTime
 
 @Data
 @Entity
 @Table(name = "warehouses")
 public class Warehouse {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +27,10 @@ public class Warehouse {
     @Column(length = 100)
     private String city;
 
-    @Column(name = "date", nullable = false)
-    private LocalDate createAt;
+    // ELIMINAMOS @Column(name = "date") y usamos el estándar
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt; // <-- Con "d" al final y LocalDateTime
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -37,9 +38,6 @@ public class Warehouse {
     @EqualsAndHashCode.Exclude
     private User user;
 
-    @PrePersist
-    public void prePersist() {
-        this.createAt = LocalDate.now();
-    }
-
+    // ELIMINA el método prePersist() que tenías aquí abajo,
+    // @CreationTimestamp ya hace ese trabajo automáticamente.
 }

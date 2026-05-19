@@ -3,6 +3,8 @@ package com.stockSync.backend.stock.dto;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @JsonPropertyOrder({ "id", "code", "name", "address", "city", "createAt" })
 public class WarehouseResponse {
@@ -11,5 +13,5 @@ public class WarehouseResponse {
     private String name;
     private String address;
     private String city;
-    private String createAt;
+    private LocalDateTime createdAt;
 }

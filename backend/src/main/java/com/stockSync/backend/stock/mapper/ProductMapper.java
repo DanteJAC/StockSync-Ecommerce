@@ -27,6 +27,8 @@ public interface ProductMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "stock", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     void updateEntityFromRequest(ProductRequest request, @MappingTarget Product entity);
 
     List<ProductResponse> toResponseList(List<Product> entities);

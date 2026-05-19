@@ -13,9 +13,7 @@ import com.stockSync.backend.stock.repository.CategoryRepository;
 import com.stockSync.backend.stock.repository.ProductRepository;
 import com.stockSync.backend.stock.repository.StockRepository;
 import com.stockSync.backend.stock.repository.WarehouseRepository;
-import com.stockSync.backend.user.model.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ProductServiceImpl implements ProductService {
+public class ProductServiceImpl extends BaseService implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
@@ -34,14 +32,10 @@ public class ProductServiceImpl implements ProductService {
     private final WarehouseRepository warehouseRepository;
     private final ProductMapper productMapper;
 
-    private User getCurrentUser() {
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    }
-
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
-        List<Product> products = productRepository.findByUserId(getCurrentUser().getId());
+        List<Product> products = productRepository.findByUserId(getTenantId());
         List<ProductResponse> responses = productMapper.toResponseList(products);
         populateWarehouseStocks(responses);
         return responses;
@@ -51,12 +45,13 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto con ID: " + id + " no encontrado"));
-        if (!product.getUser().getId().equals(getCurrentUser().getId())) {
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        if (!product.getUser().getId().equals(getTenantId())) {
             throw new RuntimeException("Producto no encontrado");
         }
         ProductResponse response = productMapper.toResponse(product);
-        List<Stock> stocks = stockRepository.findByProductId(id);
+        List<Stock> stocks = stockRepository.findByProductIdAndUserId(id, getTenantId());
         response.setWarehouseStocks(toWarehouseStockInfo(stocks));
         return response;
     }
@@ -64,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> searchProductsByName(String name) {
-        List<Product> products = productRepository.findByNameContainingIgnoreCaseAndUserId(name, getCurrentUser().getId());
+        List<Product> products = productRepository.findByNameContainingIgnoreCaseAndUserId(name, getTenantId());
         List<ProductResponse> responses = productMapper.toResponseList(products);
         populateWarehouseStocks(responses);
         return responses;
@@ -73,10 +68,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getProductsByCategoryId(Long categoryId) {
-        if (!categoryRepository.existsById(categoryId)) {
-            throw new RuntimeException("Categoria no encontrada");
-        }
-        List<Product> products = productRepository.findByCategoryIdAndUserId(categoryId, getCurrentUser().getId());
+        List<Product> products = productRepository.findByCategoryIdAndUserId(categoryId, getTenantId());
         List<ProductResponse> responses = productMapper.toResponseList(products);
         populateWarehouseStocks(responses);
         return responses;
@@ -84,24 +76,26 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public long countAllProducts() {
-        return productRepository.countByUserId(getCurrentUser().getId());
+        return productRepository.countByUserId(getTenantId());
     }
 
     @Override
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
-        if (productRepository.findBySku(request.getSku()).isPresent()) {
-            throw new RuntimeException("El SKU " + request.getSku() + " ya existe");
+        if (productRepository.findBySkuAndUserId(request.getSku(), getTenantId()).isPresent()) {
+            throw new RuntimeException("El SKU " + request.getSku() + " ya existe en tu organización");
         }
-
-        User currentUser = getCurrentUser();
 
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Categoria no encontrada."));
 
+        if (!category.getUser().getId().equals(getTenantId())) {
+            throw new RuntimeException("Categoria no encontrada.");
+        }
+
         Product product = productMapper.toEntity(request);
         product.setCategory(category);
-        product.setUser(currentUser);
+        product.setUser(getTenantUser());
 
         long totalStock = 0;
         if (request.getWarehouseStocks() != null) {
@@ -110,21 +104,25 @@ public class ProductServiceImpl implements ProductService {
                     .sum();
         }
         product.setStock(totalStock);
-
         product = productRepository.save(product);
 
         if (request.getWarehouseStocks() != null) {
             for (WarehouseEntry entry : request.getWarehouseStocks()) {
                 Warehouse warehouse = warehouseRepository.findById(entry.getWarehouseId())
-                        .orElseThrow(() -> new RuntimeException("Bodega con ID: " + entry.getWarehouseId() + " no encontrada"));
+                        .orElseThrow(() -> new RuntimeException("Bodega no encontrada"));
+
+                if (!warehouse.getUser().getId().equals(getTenantId())) {
+                    throw new RuntimeException("Acceso denegado a la sucursal seleccionada");
+                }
+
                 Stock stock = new Stock(product, warehouse, entry.getQuantity());
-                stock.setUser(currentUser);
+                stock.setUser(getTenantUser());
                 stockRepository.save(stock);
             }
         }
 
         ProductResponse response = productMapper.toResponse(product);
-        List<Stock> savedStocks = stockRepository.findByProductId(product.getId());
+        List<Stock> savedStocks = stockRepository.findByProductIdAndUserId(product.getId(), getTenantId());
         response.setWarehouseStocks(toWarehouseStockInfo(savedStocks));
         return response;
     }
@@ -132,11 +130,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request) {
-        User currentUser = getCurrentUser();
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto con ID: " + id + " no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-        if (!product.getUser().getId().equals(currentUser.getId())) {
+        if (!product.getUser().getId().equals(getTenantId())) {
             throw new RuntimeException("Producto no encontrado");
         }
 
@@ -145,13 +142,15 @@ public class ProductServiceImpl implements ProductService {
         if (!product.getCategory().getId().equals(request.getCategoryId())) {
             Category newCategory = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("Nueva Categoria no encontrada."));
+            if (!newCategory.getUser().getId().equals(getTenantId())) {
+                throw new RuntimeException("Categoria no encontrada");
+            }
             product.setCategory(newCategory);
         }
 
         product = productRepository.save(product);
-
         ProductResponse response = productMapper.toResponse(product);
-        List<Stock> stocks = stockRepository.findByProductId(id);
+        List<Stock> stocks = stockRepository.findByProductIdAndUserId(id, getTenantId());
         response.setWarehouseStocks(toWarehouseStockInfo(stocks));
         return response;
     }
@@ -159,13 +158,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public void deleteProduct(Long id) {
-        User currentUser = getCurrentUser();
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se puede eliminar: Producto no encontrado"));
-        if (!product.getUser().getId().equals(currentUser.getId())) {
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        if (!product.getUser().getId().equals(getTenantId())) {
             throw new RuntimeException("Producto no encontrado");
         }
-        productRepository.deleteById(id);
+        productRepository.delete(product);
     }
 
     private void populateWarehouseStocks(List<ProductResponse> responses) {
@@ -175,7 +174,7 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductResponse::getId)
                 .collect(Collectors.toList());
 
-        List<Stock> allStocks = stockRepository.findByUserId(getCurrentUser().getId()).stream()
+        List<Stock> allStocks = stockRepository.findByUserId(getTenantId()).stream()
                 .filter(s -> productIds.contains(s.getProduct().getId()))
                 .collect(Collectors.toList());
 

@@ -1,6 +1,5 @@
 package com.stockSync.backend.stock.controller;
 
-import com.stockSync.backend.stock.dto.CategoryResponse;
 import com.stockSync.backend.stock.dto.ProductResponse;
 import com.stockSync.backend.stock.dto.StockResponse;
 import com.stockSync.backend.stock.dto.WarehouseResponse;
@@ -10,6 +9,7 @@ import com.stockSync.backend.stock.service.StockService;
 import com.stockSync.backend.stock.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminViewController {
 
     private final ProductService productService;

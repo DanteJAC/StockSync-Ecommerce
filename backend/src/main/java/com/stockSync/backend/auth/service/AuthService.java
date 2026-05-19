@@ -79,7 +79,7 @@ public class AuthService {
         var user = User.builder()
                 .nombre(request.getEmail().split("@")[0])
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(tempPassword))
+                .password(Objects.requireNonNull(passwordEncoder.encode(tempPassword)))
                 .role(request.getRole())
                 .owner(admin)
                 .forcePasswordChange(true)

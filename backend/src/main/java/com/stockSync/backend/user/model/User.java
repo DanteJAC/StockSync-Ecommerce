@@ -12,7 +12,8 @@ import java.util.List;
 
 @Entity
 @Table(name="users")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -39,8 +40,6 @@ public class User  implements UserDetails {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private User owner;
 
     @Column(nullable = false)
@@ -56,20 +55,5 @@ public class User  implements UserDetails {
     public String getUsername() {
         return email;
     }
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    
 }

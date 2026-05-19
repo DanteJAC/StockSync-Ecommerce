@@ -1,17 +1,14 @@
 package com.stockSync.backend.stock.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "stocks_movements")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -33,11 +30,13 @@ public class StockMovement {
     @JoinColumn(name = "destination_warehouse_id")
     private Warehouse destinationWarehouse;
 
+    @Column(nullable = false)
     private Integer quantity;
 
-    private String movementType;
+    @Column(name = "movement_type", nullable = false)
+    private String movementType; // Guardará valores operativos como "INGRESO", "TRASLADO", "MERMA"
 
     @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
 }

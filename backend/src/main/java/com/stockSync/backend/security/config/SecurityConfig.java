@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -31,19 +33,18 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
 
                 .authorizeHttpRequests(auth -> auth
+                        // Archivos estáticos del frontend (si los sirvieras desde Spring)
                         .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/icons.svg").permitAll()
-                        .requestMatchers("/api/login", "/api/register").permitAll()
-                        .requestMatchers("/api/users/change-password").authenticated()
-                        .requestMatchers("/api/users/invite").hasRole("ADMIN")
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/**").authenticated()
-                        .requestMatchers("/v1/products/**").hasAnyRole("ADMIN", "LOCAL")
-                        .requestMatchers("/v1/warehouses/**").hasAnyRole("ADMIN", "BODEGA")
-                        .requestMatchers("/v1/stocks/**").authenticated()
-                        .requestMatchers("/v1/categories/**").authenticated()
-                        .anyRequest().permitAll()
-                )
 
+                        // Endpoints de autenticación
+                        .requestMatchers("/api/login", "/api/register").permitAll()
+
+                        // Protegemos todo el árbol de rutas de la API usando asteriscos dobles
+                        .requestMatchers("/api/v1/**", "/api/users/**", "/api/admin/**").authenticated()
+
+                        // Cualquier otra petición que no esté explícitamente permitida arriba, SE BLOQUEA
+                        .anyRequest().authenticated()
+                )
                 // 4. MANEJO DE SESIÓN: Stateless porque usamos tokens
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -5,9 +5,7 @@ import com.stockSync.backend.stock.dto.CategoryResponse;
 import com.stockSync.backend.stock.mapper.CategoryMapper;
 import com.stockSync.backend.stock.model.Category;
 import com.stockSync.backend.stock.repository.CategoryRepository;
-import com.stockSync.backend.user.model.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,19 +13,15 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceImpl extends BaseService implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
-    private User getCurrentUser() {
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    }
-
     @Override
     @Transactional(readOnly = true)
     public List<CategoryResponse> getAllCategories() {
-        return categoryMapper.toResponseList(categoryRepository.findByUserId(getCurrentUser().getId()));
+        return categoryMapper.toResponseList(categoryRepository.findByUserId(getTenantId()));
     }
 
     @Override
@@ -35,7 +29,8 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Categoria no encontrada"));
-        if (!category.getUser().getId().equals(getCurrentUser().getId())) {
+
+        if (!category.getUser().getId().equals(getTenantId())) {
             throw new RuntimeException("Categoria no encontrada");
         }
         return categoryMapper.toResponse(category);
@@ -44,23 +39,22 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryResponse createCategory(CategoryRequest request) {
-        User currentUser = getCurrentUser();
-        if (categoryRepository.existsByNameAndUserId(request.getName(), currentUser.getId())) {
-            throw new RuntimeException("La categoria '" + request.getName() + "' ya existe");
+        // Verificamos si existe en ESTE entorno
+        if (categoryRepository.existsByNameAndUserId(request.getName(), getTenantId())) {
+            throw new RuntimeException("La categoria '" + request.getName() + "' ya existe en tu organización");
         }
         Category category = categoryMapper.toEntity(request);
-        category.setUser(currentUser);
+        category.setUser(getTenantUser());
         return categoryMapper.toResponse(categoryRepository.save(category));
     }
 
     @Override
     @Transactional
     public CategoryResponse updateCategory(Long id, CategoryRequest request) {
-        User currentUser = getCurrentUser();
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se pudo actualizar: Categoria no encontrada"));
 
-        if (!category.getUser().getId().equals(currentUser.getId())) {
+        if (!category.getUser().getId().equals(getTenantId())) {
             throw new RuntimeException("Categoria no encontrada");
         }
 
@@ -71,16 +65,15 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(Long id) {
-        User currentUser = getCurrentUser();
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se pudo eliminar: Categoria no encontrada"));
 
-        if (!category.getUser().getId().equals(currentUser.getId())) {
+        if (!category.getUser().getId().equals(getTenantId())) {
             throw new RuntimeException("Categoria no encontrada");
         }
 
         if (!category.getProducts().isEmpty()) {
-            throw new RuntimeException("No se puede eliminar: La categoria tiene productos. ");
+            throw new RuntimeException("No se puede eliminar: La categoria tiene productos.");
         }
 
         categoryRepository.delete(category);
