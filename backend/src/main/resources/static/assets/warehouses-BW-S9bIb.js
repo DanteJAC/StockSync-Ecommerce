@@ -1,0 +1,1 @@
+import{r as e}from"./router-CZnc_p2Y.js";function t(){return e.get(`/v1/warehouses`)}function n(t){return e.get(`/v1/warehouses/${t}`)}function r(t){return e.post(`/v1/warehouses`,t)}function i(t,n){return e.put(`/v1/warehouses/${t}`,n)}function a(t){return e.delete(`/v1/warehouses/${t}`)}export{i as a,t as i,a as n,n as r,r as t};

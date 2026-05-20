@@ -31,17 +31,33 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Archivos estáticos y Landing Page
-                        .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/icons.svg").permitAll()
+                        // 1. Archivos estáticos de tu Frontend (Vue)
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/assets/**",
+                                "/favicon.ico",
+                                "/icons.svg"
+                        ).permitAll()
 
-                        // 2. Endpoints de autenticación (los únicos públicos de la API)
-                        .requestMatchers("/api/login", "/api/register").permitAll()
+                        // 2. Endpoints de autenticación de tu API (CORREGIDOS con el prefijo /api)
+                        // Ajusta esto si tu controlador de auth usa /api/login o /api/v1/auth/login
+                        .requestMatchers(
+                                "/api/login",
+                                "/api/register"
+                        ).permitAll()
 
-                        // 3. Proteger estrictamente el backend (API)
+                        // 3. Documentación de Swagger/OpenAPI (Acceso público global)
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+
+                        // 4. Proteger estrictamente los endpoints de negocio de la API
                         .requestMatchers("/api/v1/**", "/api/users/**", "/api/admin/**").authenticated()
 
-                        // 4. Permitir que Vue maneje sus propias rutas (ej. /admin, /login)
-                        // Esto evita que Spring intente autenticar rutas que son del frontend
+                        // 5. Permitir que Vue maneje cualquier otra ruta de la SPA (ej: /admin, /dashboard)
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
@@ -53,8 +69,9 @@ public class SecurityConfig {
         return http.build();
     }
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
+
 
 }

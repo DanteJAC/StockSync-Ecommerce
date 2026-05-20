@@ -1,1 +1,0 @@
-import{Cn as e,Dn as t,Tn as n,an as r}from"./router-BAfCNX4y.js";function i(){let i=n(!1);return r(()=>{window.requestAnimationFrame(()=>{i.value=!0})}),{ssrBootStyles:t(()=>i.value?void 0:{transition:`none !important`}),isBooted:e(i)}}export{i as t};

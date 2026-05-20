@@ -17,6 +17,7 @@ import static java.lang.System.currentTimeMillis;
 @Service
 public class JwtService {
 
+    // 1. La anotación @Value va EXCLUSIVAMENTE sobre el atributo de texto.
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
@@ -36,9 +37,9 @@ public class JwtService {
     public String generateToken(Map<String, Object> extraclaims, UserDetails userDetails) {
         return Jwts.builder()
                 .claims(extraclaims)
-                .subject(userDetails.getUsername()).
-                issuedAt(new Date(currentTimeMillis())).
-                expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24)) // Expiracion de 24 horas
+                .subject(userDetails.getUsername()) // Corregido punto por coma flotante en el formateo original
+                .issuedAt(new Date(currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // CORREGIDO: 1000ms * 60s * 60m * 24h para que sean 24 horas reales
                 .signWith(getSignInKey())
                 .compact();
     }
@@ -62,13 +63,12 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
     }
-    @Value("${application.security.jwt.secret-key}")
+
+    // ✅ CORREGIDO: Se eliminó la anotación @Value duplicada que estaba sobre este método.
+    // Este es un método de soporte interno ordinario.
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
-
 }
