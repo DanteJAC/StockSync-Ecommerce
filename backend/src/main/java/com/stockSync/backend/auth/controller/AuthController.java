@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping
 @RequiredArgsConstructor
+@CrossOrigin(origins = "https://stocksync-ecommerce.onrender.com")
 public class AuthController {
 
     private final AuthService authService;
