@@ -1,0 +1,1 @@
+import{r as e}from"./router-BMQF4yDD.js";function t(){return e.get(`/v1/categories`)}function n(t){return e.post(`/v1/categories`,t)}function r(t,n){return e.put(`/v1/categories/${t}`,n)}function i(t){return e.delete(`/v1/categories/${t}`)}export{r as i,i as n,t as r,n as t};
