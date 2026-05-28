@@ -1,13 +1,14 @@
 <template>
-  <v-app-bar flat density="comfortable" class="px-4">
+  <v-app-bar flat density="comfortable" class="px-2" style="padding-left: 4px;">
     <v-container class="d-flex align-center pa-0">
-        <router-link to="/" class="text-decoration-none">
-          <v-app-bar-title
-              class="font-weight-bold text-primary cursor-pointer"
-          >
-            StockSync
-          </v-app-bar-title>
-        </router-link>
+      <router-link to="/" class="text-decoration-none">
+        <v-app-bar-title
+            class="font-weight-bold text-primary cursor-pointer"
+            style="font-size: 2rem; margin-left: -120px;"
+        >
+          StockSync
+        </v-app-bar-title>
+      </router-link>
 
       <v-spacer />
 

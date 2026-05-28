@@ -5,14 +5,16 @@ import '@mdi/font/css/materialdesignicons.css'
 const lightTheme = {
   dark: false,
   colors: {
-    background: '#FFFFFF',
-    surface: '#F5F5F5',
-    primary: '#2563EB',
-    secondary: '#4B5563',
-    accent: '#2563EB',
+    background: '#DCE0FF',
+    surface: '#FFFFFF',
+
+    primary: '#94B0DA',
+    secondary: '#57886C',
+    accent: '#81A684',
+
     error: '#EF4444',
-    info: '#3B82F6',
-    success: '#10B981',
+    info: '#94B0DA',
+    success: '#81A684',
     warning: '#F59E0B',
   },
 }
@@ -20,14 +22,16 @@ const lightTheme = {
 const darkTheme = {
   dark: true,
   colors: {
-    background: '#121212',
-    surface: '#1E1E1E',
-    primary: '#4ADE80',
-    secondary: '#9CA3AF',
-    accent: '#4ADE80',
+    background: '#020300',
+    surface: '#111111',
+
+    primary: '#81A684',
+    secondary: '#94B0DA',
+    accent: '#57886C',
+
     error: '#F87171',
-    info: '#60A5FA',
-    success: '#34D399',
+    info: '#94B0DA',
+    success: '#81A684',
     warning: '#FBBF24',
   },
 }

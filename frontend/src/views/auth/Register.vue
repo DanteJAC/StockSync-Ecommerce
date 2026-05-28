@@ -1,5 +1,5 @@
 <template>
-  <v-main>
+  <v-main fluid class="register-background">
     <PublicHeader />
 
     <v-container class="py-12" max-width="480">
@@ -106,3 +106,31 @@ async function handleRegister() {
   }
 }
 </script>
+
+<style scoped>
+.register-background {
+  background-image:
+      linear-gradient(
+          rgba(2, 3, 0, 0.72),
+          rgba(2, 3, 0, 0.72)
+      ),
+      url('/loginback.jpg');
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  min-height: 100vh;
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-background {
+  position: fixed;
+  inset: 0;
+}
+
+</style>

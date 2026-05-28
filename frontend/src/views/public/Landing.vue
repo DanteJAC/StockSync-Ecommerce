@@ -9,7 +9,9 @@
 
             <v-icon size="80" color="primary" class="mb-6 floating-icon">mdi-package-variant-closed</v-icon>
 
-            <h1 class="text-h1 font-weight-bold mb-6">StockSync</h1>
+            <h1 class="text-h1 font-weight-bold mb-6 text-white">
+              StockSync
+            </h1>
 
             <p class="text-h5 text-grey-lighten-1 mb-8">
               Inventario sin errores, negocio sin límites.
@@ -38,9 +40,10 @@
                 size="x-large"
                 variant="outlined"
                 rounded="xl"
-                class="mb-2 px-8"
+                class="mb-2 px-8 text-white"
+                style="border-color: white;"
             >
-              <v-icon start>mdi-account-plus</v-icon>
+              <v-icon start color="white">mdi-account-plus</v-icon>
               Registrarse
             </v-btn>
           </v-col>
@@ -63,7 +66,7 @@
       </v-container>
     </section>
 
-    <section class="cta-section py-12 bg-primary text-center">
+    <section class="cta-section py-12 text-center">
       <v-container>
         <h2 class="text-h3 font-weight-bold text-white mb-4">¿Listo para gestionar tu inventario?</h2>
         <v-btn
@@ -136,17 +139,18 @@ const features = [
 
 .cta-section {
   background-color: rgb(var(--v-theme-primary)) !important;
+  //background: linear-gradient(135deg, #166534, #4ADE80);
 }
 
-/* HERO */
 
+/* HERO */
 .hero-background {
   background-image:
       linear-gradient(
-          rgba(0, 0, 0, 0.45),
-          rgba(0, 0, 0, 0.55)
+          rgba(2, 3, 0, 0.72),
+          rgba(2, 3, 0, 0.72)
       ),
-      url('/background2.jpg');
+      url('public/background2.jpg');
 
   background-size: cover;
   background-position: center;
@@ -165,6 +169,12 @@ const features = [
   line-height: 1.8;
 }
 
+h1,
+.hero-description,
+.text-h5 {
+  //text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
 /* BOTONES */
 
 .v-btn {
@@ -174,6 +184,16 @@ const features = [
 .v-btn:hover {
   transform: translateY(-3px);
 }
+
+.v-app-bar {
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.75) !important;
+}
+
+.v-theme--dark .v-app-bar {
+  background: rgba(18,18,18,0.75) !important;
+}
+
 
 /* ICONO */
 
