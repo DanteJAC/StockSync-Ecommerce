@@ -3,6 +3,9 @@ spring:
     name: StockSync Backend
   config:
     import: "optional:file:.env[.properties]"
+  mvc:
+    servlet:
+      path: /api
 
   # --- Spring Mail Configuration (using Brevo SMTP) ---
   mail:
@@ -17,9 +20,9 @@ spring:
           starttls:
             enable: true
 
-  # Database Configuration
+  # Database Configuration (Default profile for local development)
   datasource:
-    url: ${DB_URL}?sslmode=require
+    url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -63,3 +66,13 @@ application:
   mail:
     from-email: jacobo.bustos.22@gmail.com
     from-name: "Equipo de StockSync"
+
+---
+
+# Production profile (for Render)
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DB_URL}?sslmode=require
