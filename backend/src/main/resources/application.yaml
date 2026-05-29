@@ -5,9 +5,7 @@ spring:
     import: 
       - "optional:file:.env[.properties]"
       - "optional:file:../.env[.properties]"
-  mvc:
-    servlet:
-      path: /api
+  # Removed mvc.servlet.path so static frontend files can be served at the root (/)
 
   # --- Spring Mail Configuration (using Brevo SMTP) ---
   mail:

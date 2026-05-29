@@ -150,7 +150,7 @@ const features = [
           rgba(2, 3, 0, 0.72),
           rgba(2, 3, 0, 0.72)
       ),
-      url('public/background2.jpg');
+      url('/background2.jpg');
 
   background-size: cover;
   background-position: center;
