@@ -15,6 +15,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.stockSync.backend.common.exception.ConflictException;
+import com.stockSync.backend.common.exception.BadRequestException;
+import com.stockSync.backend.common.exception.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -32,7 +35,7 @@ public class AuthService {
 
     public void register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El email ya existe");
+            throw new ConflictException("El email ya existe");
         }
 
         var user = User.builder()
@@ -69,7 +72,7 @@ public class AuthService {
 
     public InviteResponse invite(InviteRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El email ya existe");
+            throw new ConflictException("El email ya existe");
         }
 
         User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -110,7 +113,7 @@ public class AuthService {
     @Transactional
     public String forgotPassword(ForgotPasswordRequest request) {
         var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("No se encontró ningún usuario con ese email"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         String token = UUID.randomUUID().toString();
         user.setResetPasswordToken(token);
@@ -125,10 +128,10 @@ public class AuthService {
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
         var user = userRepository.findByResetPasswordToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException("Token inválido o expirado"));
+                .orElseThrow(() -> new BadRequestException("Token inválido o expirado"));
 
         if (user.getResetPasswordTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("El token ha expirado");
+            throw new BadRequestException("El token ha expirado");
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));

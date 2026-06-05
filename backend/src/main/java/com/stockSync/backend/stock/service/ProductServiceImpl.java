@@ -14,6 +14,7 @@ import com.stockSync.backend.stock.repository.ProductRepository;
 import com.stockSync.backend.stock.repository.StockRepository;
 import com.stockSync.backend.stock.repository.WarehouseRepository;
 import lombok.RequiredArgsConstructor;
+import com.stockSync.backend.common.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,10 +46,10 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", "id", id));
 
         if (!product.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Producto no encontrado");
+            throw new ResourceNotFoundException("Producto no encontrado");
         }
         ProductResponse response = productMapper.toResponse(product);
         List<Stock> stocks = stockRepository.findByProductIdAndUserId(id, getTenantId());
@@ -83,14 +84,14 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
         if (productRepository.findBySkuAndUserId(request.getSku(), getTenantId()).isPresent()) {
-            throw new RuntimeException("El SKU " + request.getSku() + " ya existe en tu organización");
+            throw new com.stockSync.backend.common.exception.ConflictException("El SKU " + request.getSku() + " ya existe en tu organización");
         }
 
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Categoria no encontrada."));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria", "id", request.getCategoryId()));
 
         if (!category.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Categoria no encontrada.");
+            throw new ResourceNotFoundException("Categoria no encontrada");
         }
 
         Product product = productMapper.toEntity(request);
@@ -109,10 +110,10 @@ public class ProductServiceImpl extends BaseService implements ProductService {
         if (request.getWarehouseStocks() != null) {
             for (WarehouseEntry entry : request.getWarehouseStocks()) {
                 Warehouse warehouse = warehouseRepository.findById(entry.getWarehouseId())
-                        .orElseThrow(() -> new RuntimeException("Bodega no encontrada"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Bodega", "id", entry.getWarehouseId()));
 
                 if (!warehouse.getUser().getId().equals(getTenantId())) {
-                    throw new RuntimeException("Acceso denegado a la sucursal seleccionada");
+                    throw new ResourceNotFoundException("Acceso denegado a la sucursal seleccionada");
                 }
 
                 Stock stock = new Stock(product, warehouse, entry.getQuantity());
@@ -131,19 +132,19 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", "id", id));
 
         if (!product.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Producto no encontrado");
+            throw new ResourceNotFoundException("Producto no encontrado");
         }
 
         productMapper.updateEntityFromRequest(request, product);
 
         if (!product.getCategory().getId().equals(request.getCategoryId())) {
             Category newCategory = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Nueva Categoria no encontrada."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Categoria", "id", request.getCategoryId()));
             if (!newCategory.getUser().getId().equals(getTenantId())) {
-                throw new RuntimeException("Categoria no encontrada");
+                throw new ResourceNotFoundException("Categoria no encontrada");
             }
             product.setCategory(newCategory);
         }
@@ -159,10 +160,10 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     @Transactional
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", "id", id));
 
         if (!product.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Producto no encontrado");
+            throw new ResourceNotFoundException("Producto no encontrado");
         }
         productRepository.delete(product);
     }

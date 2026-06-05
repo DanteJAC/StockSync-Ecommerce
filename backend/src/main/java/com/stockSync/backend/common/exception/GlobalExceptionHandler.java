@@ -45,14 +45,50 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleRuntimeException(
             RuntimeException ex, WebRequest request) {
         // ✅ Null-safe
-        String msg = ex.getMessage() != null ? ex.getMessage() : "Error interno del servidor";
+        String msg = ex.getMessage() != null ? 
+        ex.getMessage() : 
+        "Error interno del servidor";
         HttpStatus status = msg.contains("no existe")
                 ? HttpStatus.NOT_FOUND
                 : HttpStatus.INTERNAL_SERVER_ERROR;
         return buildError(status, msg, request);
     }
 
-    // Helper reutilizable
+    //Recurso no encontrado (404)
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse>
+    handleResourceNotFoundException(
+        ResourceNotFoundException ex, WebRequest request){
+            return buildError(HttpStatus.NOT_FOUND,
+                ex.getMessage(), request);
+        }
+
+    
+    // Conflictos (409)
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflictException(
+            ConflictException ex, WebRequest request) {
+        return buildError(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
+    // Peticiones incorrectas / validaciones de negocio (400)
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequestException(
+            BadRequestException ex, WebRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    //Otros errores Inesperados
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handlerGlobalException(
+        Exception ex, WebRequest request) {
+            String msg = ex.getMessage() != null ?
+            ex.getMessage() :
+            "Error interno del servidor";
+            return buildError(HttpStatus.INTERNAL_SERVER_ERROR, msg, request);
+        }
+    
+    //Helper reutilizable
     private ResponseEntity<ErrorResponse> buildError(
             HttpStatus status, String message, WebRequest request) {
         ErrorResponse error = new ErrorResponse(
