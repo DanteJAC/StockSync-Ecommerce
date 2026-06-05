@@ -5,6 +5,8 @@ import com.stockSync.backend.stock.dto.CategoryResponse;
 import com.stockSync.backend.stock.mapper.CategoryMapper;
 import com.stockSync.backend.stock.model.Category;
 import com.stockSync.backend.stock.repository.CategoryRepository;
+import com.stockSync.backend.common.exception.ResourceNotFoundException;
+import com.stockSync.backend.common.exception.ConflictException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +30,10 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     @Transactional(readOnly = true)
     public CategoryResponse getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoria no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria", "id", id));
 
         if (!category.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Categoria no encontrada");
+            throw new ResourceNotFoundException("Categoria no encontrada");
         }
         return categoryMapper.toResponse(category);
     }
@@ -41,7 +43,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     public CategoryResponse createCategory(CategoryRequest request) {
         // Verificamos si existe en ESTE entorno
         if (categoryRepository.existsByNameAndUserId(request.getName(), getTenantId())) {
-            throw new RuntimeException("La categoria '" + request.getName() + "' ya existe en tu organización");
+            throw new ConflictException("La categoria '" + request.getName() + "' ya existe en tu organización");
         }
         Category category = categoryMapper.toEntity(request);
         category.setUser(getTenantUser());
@@ -52,10 +54,10 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     @Transactional
     public CategoryResponse updateCategory(Long id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se pudo actualizar: Categoria no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria", "id", id));
 
         if (!category.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Categoria no encontrada");
+            throw new ResourceNotFoundException("Categoria no encontrada");
         }
 
         categoryMapper.updateEntityFromRequest(request, category);
@@ -66,14 +68,14 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     @Transactional
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se pudo eliminar: Categoria no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria", "id", id));
 
         if (!category.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Categoria no encontrada");
+            throw new ResourceNotFoundException("Categoria no encontrada");
         }
 
         if (!category.getProducts().isEmpty()) {
-            throw new RuntimeException("No se puede eliminar: La categoria tiene productos.");
+            throw new ConflictException("No se puede eliminar: La categoria tiene productos.");
         }
 
         categoryRepository.delete(category);

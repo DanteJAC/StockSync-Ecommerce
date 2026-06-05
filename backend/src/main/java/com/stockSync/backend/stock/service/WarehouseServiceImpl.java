@@ -5,6 +5,7 @@ import com.stockSync.backend.stock.dto.WarehouseRequest;
 import com.stockSync.backend.stock.dto.WarehouseResponse;
 import com.stockSync.backend.stock.model.Warehouse;
 import com.stockSync.backend.stock.repository.WarehouseRepository;
+import com.stockSync.backend.common.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,11 +28,11 @@ public class WarehouseServiceImpl extends BaseService implements WarehouseServic
     @Override
     public WarehouseResponse getWarehouseById(Long id) {
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Bodega no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Bodega", "id", id));
 
         // Verificamos que la bodega pertenezca al entorno actual
         if (!warehouse.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Bodega no encontrada");
+            throw new ResourceNotFoundException("Bodega no encontrada");
         }
         return warehouseMapper.toResponse(warehouse);
     }
@@ -48,10 +49,10 @@ public class WarehouseServiceImpl extends BaseService implements WarehouseServic
     @Transactional
     public WarehouseResponse updateWarehouse(Long id, WarehouseRequest request) {
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se puede actualizar: ID no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Bodega", "id", id));
 
         if (!warehouse.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Bodega no encontrada");
+            throw new ResourceNotFoundException("Bodega no encontrada");
         }
 
         warehouseMapper.updateEntityFromRequest(request, warehouse);
@@ -62,10 +63,10 @@ public class WarehouseServiceImpl extends BaseService implements WarehouseServic
     @Transactional
     public void deleteWarehouse(Long id) {
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se puede eliminar: ID no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Bodega", "id", id));
 
         if (!warehouse.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Bodega no encontrada");
+            throw new ResourceNotFoundException("Bodega no encontrada");
         }
         warehouseRepository.deleteById(id);
     }

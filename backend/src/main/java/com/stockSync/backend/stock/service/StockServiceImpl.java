@@ -15,6 +15,10 @@ import com.stockSync.backend.stock.repository.WarehouseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
+import com.stockSync.backend.common.exception.ResourceNotFoundException;
+import com.stockSync.backend.common.exception.ConflictException;
+import com.stockSync.backend.common.exception.BadRequestException;
 
 import java.util.List;
 
@@ -47,12 +51,12 @@ public class StockServiceImpl extends BaseService implements StockService {
     @Transactional
     public StockResponse addStock(StockRequest request) {
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", "id", request.getProductId()));
         Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
-                .orElseThrow(() -> new RuntimeException("Bodega no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Bodega", "id", request.getWarehouseId()));
 
         if (!product.getUser().getId().equals(getTenantId()) || !warehouse.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Operación no permitida: los recursos no corresponden a tu organización.");
+            throw new AccessDeniedException("Operación no permitida: los recursos no corresponden a tu organización.");
         }
 
         Stock stock = stockRepository.findByProductIdAndWarehouseIdAndUserId(product.getId(), warehouse.getId(), getTenantId())
@@ -80,16 +84,16 @@ public class StockServiceImpl extends BaseService implements StockService {
     @Transactional
     public StockResponse updateStock(StockRequest request) {
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", "id", request.getProductId()));
         Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
-                .orElseThrow(() -> new RuntimeException("Bodega no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Bodega", "id", request.getWarehouseId()));
 
         if (!product.getUser().getId().equals(getTenantId()) || !warehouse.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Acceso denegado.");
+            throw new AccessDeniedException("Acceso denegado.");
         }
 
         Stock stock = stockRepository.findByProductIdAndWarehouseIdAndUserId(product.getId(), warehouse.getId(), getTenantId())
-                .orElseThrow(() -> new RuntimeException("Registro de inventario no existente para ajuste directo"));
+                .orElseThrow(() -> new ResourceNotFoundException("Registro de inventario no existente para ajuste directo"));
 
         // Ajustar el stock global recalculando la diferencia neta
         int diferencia = request.getQuantity() - stock.getQuantity();
@@ -114,21 +118,21 @@ public class StockServiceImpl extends BaseService implements StockService {
     public void transferStock(StockTransferRequest request) {
         Stock sourceStock = stockRepository.findByProductIdAndWarehouseIdAndUserId(
                         request.getProductId(), request.getSourcewarehouseId(), getTenantId())
-                .orElseThrow(() -> new RuntimeException("No hay existencias registradas en la sucursal de origen."));
+                .orElseThrow(() -> new ResourceNotFoundException("No hay existencias registradas en la sucursal de origen."));
 
         if (sourceStock.getQuantity() < request.getQuantity()) {
-            throw new RuntimeException("Stock insuficiente para realizar la transferencia");
+            throw new BadRequestException("Stock insuficiente para realizar la transferencia");
         }
 
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", "id", request.getProductId()));
         Warehouse sourceWh = warehouseRepository.findById(request.getSourcewarehouseId())
-                .orElseThrow(() -> new RuntimeException("Bodega de origen no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Bodega", "id", request.getSourcewarehouseId()));
         Warehouse destWh = warehouseRepository.findById(request.getDestinationWarehouseId())
-                .orElseThrow(() -> new RuntimeException("Bodega de destino no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Bodega", "id", request.getDestinationWarehouseId()));
 
         if (!sourceWh.getUser().getId().equals(getTenantId()) || !destWh.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Movimiento denegado: las sucursales involucradas no pertenecen a la misma empresa.");
+            throw new AccessDeniedException("Movimiento denegado: las sucursales involucradas no pertenecen a la misma empresa.");
         }
 
         Stock destStock = stockRepository.findByProductIdAndWarehouseIdAndUserId(product.getId(), destWh.getId(), getTenantId())
@@ -155,10 +159,10 @@ public class StockServiceImpl extends BaseService implements StockService {
     @Transactional
     public void deleteStock(Long id) {
         Stock stock = stockRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("El registro de inventario no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("Stock", "id", id));
 
         if (!stock.getUser().getId().equals(getTenantId())) {
-            throw new RuntimeException("Acceso denegado.");
+            throw new AccessDeniedException("Acceso denegado.");
         }
         stockRepository.delete(stock);
     }
