@@ -19,4 +19,15 @@ public class AuthResponse {
     private String nombre;
     private String role;
     private boolean forcePasswordChange;
+
+    private WarehouseDto assignedWarehouse;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class WarehouseDto {
+        private Long id;
+        private String name;
+    }
 }

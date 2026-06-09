@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.AccessDeniedException;
 import com.stockSync.backend.common.exception.ResourceNotFoundException;
-import com.stockSync.backend.common.exception.ConflictException;
 import com.stockSync.backend.common.exception.BadRequestException;
 
 import java.util.List;
@@ -164,6 +163,11 @@ public class StockServiceImpl extends BaseService implements StockService {
         if (!stock.getUser().getId().equals(getTenantId())) {
             throw new AccessDeniedException("Acceso denegado.");
         }
+
+        Product product = stock.getProduct();
+        product.setStock(product.getStock() - stock.getQuantity());
+        productRepository.save(product);
+
         stockRepository.delete(stock);
     }
 }

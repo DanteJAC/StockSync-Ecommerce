@@ -46,6 +46,64 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/local',
+    component: () => import('../components/LocalLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'LocalDashboard',
+        component: () => import('../views/local/LocalDashboard.vue'),
+      },
+      {
+        path: 'ventas',
+        component: () => import('../views/local/LocalVentas.vue'),
+      },
+      {
+        path: 'inventario',
+        component: () => import('../views/local/LocalInventario.vue'),
+      },
+      {
+        path: 'solicitudReposicion',
+        component: () => import('../views/local/LocalSolicitud.vue'),
+      },
+      {
+        path: 'seguimiento',
+        component: () => import('../views/local/LocalSeguimiento.vue'),
+      },
+      {
+        path: 'recepcion',
+        component: () => import('../views/local/localRecepcion.vue'),
+      }
+    ]
+  },
+  {
+    path: '/bodega',
+    component: () => import('../components/BodegaLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'BodegaDashboard',
+        component: () => import('../views/bodega/bodegaDashboard.vue'),
+      },
+      {
+        path: 'solicitudes',
+        component: () => import('../views/bodega/bodegaSolicitudes.vue'),
+      },
+      {
+        path: 'inventario',
+        component: () => import('../views/bodega/bodegaInventario.vue'),
+      },
+      {
+        path: 'despacho',
+        component: () => import('../views/bodega/bodegaDespacho.vue'),
+      },
+      {
+        path: 'historial',
+        component: () => import('../views/bodega/bodegaHistorial.vue'),
+      }
+    ]
+  },
+  {
     path: '/admin',
     component: () => import('../components/AdminLayout.vue'),
     meta: { requiresAuth: true },
@@ -104,6 +162,16 @@ const routes = [
         path: 'usuarios',
         name: 'AdminUsuarios',
         component: () => import('../views/admin/UserManagement.vue'),
+      },
+      {
+        path: 'solicitudes',
+        name: 'WarehouseRequestList',
+        component: () => import('../views/admin/WarehouseRequestList.vue'),
+      },
+      {
+        path: 'recepcion',
+        name: 'ProductReception',
+        component: () => import('../views/admin/ProductReception.vue'),
       },
     ],
   },

@@ -20,4 +20,6 @@ public class InviteRequest {
 
     @NotNull(message = "El rol es obligatorio")
     private Role role;
+
+    private Long assignedWarehouseId;
 }

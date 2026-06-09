@@ -16,11 +16,26 @@ export const useUsersStore = defineStore('users', () => {
     }
   }
 
-  async function invite(email, role) {
-    const { data } = await api.inviteUser(email, role)
-    await fetchInvited()
+  async function fetchAll() {
+    loading.value = true
+    try {
+      const { data } = await api.getAllUsers()
+      users.value = data
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function invite(email, role, assignedWarehouseId) {
+    const { data } = await api.inviteUser(email, role, assignedWarehouseId)
+    await fetchAll()
     return data
   }
 
-  return { users, loading, fetchInvited, invite }
+  async function update(id, payload) {
+    await api.updateUser(id, payload)
+    await fetchAll()
+  }
+
+  return { users, loading, fetchInvited, fetchAll, invite, update }
 })
