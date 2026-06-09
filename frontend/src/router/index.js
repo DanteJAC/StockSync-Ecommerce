@@ -48,6 +48,7 @@ const routes = [
   {
     path: '/local',
     component: () => import('../components/LocalLayout.vue'),
+    meta: { requiresAuth: true },
     children: [
       {
         path: '',
@@ -79,6 +80,7 @@ const routes = [
   {
     path: '/bodega',
     component: () => import('../components/BodegaLayout.vue'),
+    meta: { requiresAuth: true },
     children: [
       {
         path: '',

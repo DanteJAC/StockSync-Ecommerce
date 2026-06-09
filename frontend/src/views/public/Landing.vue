@@ -79,6 +79,8 @@
           <v-icon start>mdi-rocket-launch</v-icon>
           Comenzar ahora
         </v-btn>
+
+<!-- Borrar cuando el proyecto este listo-->
         <v-btn
             to="/bodega"
             size="x-large"
@@ -100,6 +102,8 @@
           <v-icon start>mdi-storefront</v-icon>
           Vista Local
         </v-btn>
+
+
       </v-container>
     </section>
 
