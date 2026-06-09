@@ -41,6 +41,13 @@ public class ProductController {
         return productService.getProductsByCategoryId(categoryId);
     }
 
+    //Listar productos con bajo stock
+    @GetMapping("/low-stock")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LOCAL', 'BODEGA')")
+    public ResponseEntity<List<ProductResponse>> getLowStockProducts(){
+        return ResponseEntity.ok(productService.getLowStockProducts());
+    }
+
     //Buscar productos por nombre
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN', 'LOCAL', 'BODEGA')")

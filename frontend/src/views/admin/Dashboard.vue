@@ -25,7 +25,7 @@
 
   <v-row class="mt-4">
     <v-col cols="12">
-      <v-card elevation="2" color="red-lighten-5">
+      <v-card elevation="2" color="error" variant="tonal">
         <v-card-title class="text-error font-weight-bold">
           <v-icon class="mr-2">mdi-alert-circle</v-icon>
           Alertas de Bajo Stock
@@ -67,7 +67,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getProducts } from '../../api/products'
+import { getProducts, getLowStockProducts } from '../../api/products'
 import { getWarehouses } from '../../api/warehouses'
 import { getStocks } from '../../api/stock'
 
@@ -78,16 +78,17 @@ const lowStockProducts = ref([])
 
 onMounted(async () => {
   try {
-    const [prods, whs, stks] = await Promise.all([
+    const [prods, whs, stks, lowStock] = await Promise.all([
       getProducts(),
       getWarehouses(),
       getStocks(),
+      getLowStockProducts(),
     ])
     totalProducts.value = prods.data.length
     totalWarehouses.value = whs.data.length
     totalStocks.value = stks.data.length
     
-    lowStockProducts.value = prods.data.filter(p => p.stock <= (p.minStockLevel || 5))
+    lowStockProducts.value = lowStock.data
   } catch (e) {
     console.error('Error loading dashboard:', e)
   }

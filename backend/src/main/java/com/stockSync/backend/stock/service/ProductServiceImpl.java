@@ -76,6 +76,13 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getLowStockProducts() {
+        List<Product> products = productRepository.findLowStockProducts(getTenantId());
+        return productMapper.toResponseList(products);
+    }
+
+    @Override
     public long countAllProducts() {
         return productRepository.countByUserId(getTenantId());
     }

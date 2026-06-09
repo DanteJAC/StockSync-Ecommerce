@@ -16,6 +16,7 @@ public class ProductResponse {
     private String description;
     private BigDecimal price;
     private Long stock;
+    private Integer minStockLevel;
     private String sku;
     private String imageUrl;
     private Boolean active;

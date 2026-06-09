@@ -13,6 +13,7 @@ public interface ProductService {
     ProductResponse getProductById(Long id);
     List<ProductResponse> searchProductsByName(String name);
     List<ProductResponse> getProductsByCategoryId(Long categoryId);
+    List<ProductResponse> getLowStockProducts();
     long countAllProducts();
 
     //Escritura

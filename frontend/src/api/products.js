@@ -12,6 +12,10 @@ export function getProductsByCategory(categoryId) {
   return client.get(`/v1/products/category/${categoryId}`)
 }
 
+export function getLowStockProducts() {
+  return client.get('/v1/products/low-stock')
+}
+
 export function searchProducts(name) {
   return client.get('/v1/products/search', { params: { name } })
 }
