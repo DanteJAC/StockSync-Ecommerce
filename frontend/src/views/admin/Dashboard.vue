@@ -25,32 +25,36 @@
 
   <v-row class="mt-4">
     <v-col cols="12">
-      <v-card elevation="2">
-        <v-card-title>Productos Recientes</v-card-title>
+      <v-card elevation="2" color="red-lighten-5">
+        <v-card-title class="text-error font-weight-bold">
+          <v-icon class="mr-2">mdi-alert-circle</v-icon>
+          Alertas de Bajo Stock
+        </v-card-title>
         <v-card-text>
-          <v-table density="comfortable">
+          <v-table density="comfortable" class="bg-transparent">
             <thead>
               <tr>
                 <th>Nombre</th>
                 <th>Categoría</th>
-                <th>Precio</th>
-                <th>Stock</th>
+                <th>Stock Mínimo</th>
+                <th>Stock Actual</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="p in recentProducts" :key="p.id">
+              <tr v-for="p in lowStockProducts" :key="p.id">
                 <td>{{ p.name }}</td>
                 <td>{{ p.categoryName }}</td>
-                <td>${{ formatPrice(p.price) }}</td>
+                <td>{{ p.minStockLevel || 5 }}</td>
                 <td>
-                  <v-chip :color="p.stock > 0 ? 'success' : 'error'" size="small">
+                  <v-chip color="error" size="small" class="font-weight-bold">
                     {{ p.stock }}
                   </v-chip>
                 </td>
               </tr>
-              <tr v-if="!recentProducts.length">
-                <td colspan="4" class="text-center text-medium-emphasis">
-                  No hay productos
+              <tr v-if="!lowStockProducts.length">
+                <td colspan="4" class="text-center text-medium">
+                  <v-icon color="success" class="mr-2">mdi-check-circle</v-icon>
+                  No hay productos con stock bajo
                 </td>
               </tr>
             </tbody>
@@ -70,11 +74,7 @@ import { getStocks } from '../../api/stock'
 const totalProducts = ref(0)
 const totalWarehouses = ref(0)
 const totalStocks = ref(0)
-const recentProducts = ref([])
-
-function formatPrice(price) {
-  return Number(price).toLocaleString('es-CL')
-}
+const lowStockProducts = ref([])
 
 onMounted(async () => {
   try {
@@ -86,7 +86,8 @@ onMounted(async () => {
     totalProducts.value = prods.data.length
     totalWarehouses.value = whs.data.length
     totalStocks.value = stks.data.length
-    recentProducts.value = prods.data.slice(0, 5)
+    
+    lowStockProducts.value = prods.data.filter(p => p.stock <= (p.minStockLevel || 5))
   } catch (e) {
     console.error('Error loading dashboard:', e)
   }

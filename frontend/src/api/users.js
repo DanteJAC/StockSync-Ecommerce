@@ -4,6 +4,14 @@ export function getInvitedUsers() {
   return client.get('/users/invited')
 }
 
-export function inviteUser(email, role) {
-  return client.post('/users/invite', { email, role })
+export function getAllUsers() {
+  return client.get('/users')
+}
+
+export function inviteUser(email, role, assignedWarehouseId) {
+  return client.post('/users/invite', { email, role, assignedWarehouseId })
+}
+
+export function updateUser(id, data) {
+  return client.patch(`/users/${id}`, data)
 }

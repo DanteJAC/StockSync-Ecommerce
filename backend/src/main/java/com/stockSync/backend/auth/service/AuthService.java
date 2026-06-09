@@ -31,7 +31,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final EmailService emailService; // Spring ahora lo encontrará aquí
+    private final EmailService emailService;
+    private final com.stockSync.backend.stock.repository.WarehouseRepository warehouseRepository;
 
     public void register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -61,12 +62,21 @@ public class AuthService {
 
         var jwtToken = jwtService.generateToken(user);
 
+        AuthResponse.WarehouseDto warehouseDto = null;
+        if (user.getAssignedWarehouse() != null) {
+            warehouseDto = AuthResponse.WarehouseDto.builder()
+                    .id(user.getAssignedWarehouse().getId())
+                    .name(user.getAssignedWarehouse().getName())
+                    .build();
+        }
+
         return AuthResponse.builder()
                 .token(jwtToken)
                 .email(user.getEmail())
                 .nombre(user.getNombre())
                 .role(user.getRole().name())
                 .forcePasswordChange(user.isForcePasswordChange())
+                .assignedWarehouse(warehouseDto)
                 .build();
     }
 
@@ -78,6 +88,11 @@ public class AuthService {
         User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         String tempPassword = UUID.randomUUID().toString().substring(0, 8);
+        
+        com.stockSync.backend.stock.model.Warehouse warehouse = null;
+        if (request.getAssignedWarehouseId() != null) {
+            warehouse = warehouseRepository.findById(request.getAssignedWarehouseId()).orElse(null);
+        }
 
         var user = User.builder()
                 .nombre(request.getEmail().split("@")[0])
@@ -86,6 +101,8 @@ public class AuthService {
                 .role(request.getRole())
                 .owner(admin)
                 .forcePasswordChange(true)
+                .assignedWarehouse(warehouse)
+                .active(true)
                 .build();
 
         userRepository.save(user);

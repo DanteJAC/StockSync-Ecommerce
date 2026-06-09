@@ -113,11 +113,13 @@ const menuItems = computed(() => {
   }
 
   if (auth.isAdmin || auth.isBodega) {
-    items.push({ title: 'Bodegas', icon: 'mdi-warehouse', to: '/admin/bodegas' })
+    items.push({ title: 'Locales / Bodegas', icon: 'mdi-warehouse', to: '/admin/bodegas' })
   }
 
   if (auth.isAdmin || auth.isLocal || auth.isBodega) {
     items.push({ title: 'Stock', icon: 'mdi-chart-box', to: '/admin/stock' })
+    items.push({ title: 'Solicitudes a Bodega', icon: 'mdi-truck-delivery', to: '/admin/solicitudes' })
+    items.push({ title: 'Recepción', icon: 'mdi-barcode-scan', to: '/admin/recepcion' })
   }
 
   if (auth.isAdmin) {
@@ -133,13 +135,15 @@ const pageTitle = computed(() => {
     'AdminProductos': 'Productos',
     'ProductoNuevo': 'Nuevo Producto',
     'ProductoEditar': 'Editar Producto',
-    'AdminBodegas': 'Bodegas',
-    'BodegaNueva': 'Nueva Bodega',
-    'BodegaEditar': 'Editar Bodega',
+    'AdminBodegas': 'Locales / Bodegas',
+    'BodegaNueva': 'Nuevo Local/Bodega',
+    'BodegaEditar': 'Editar Local/Bodega',
     'AdminStock': 'Stock',
     'StockNuevo': 'Nuevo Stock',
     'StockEditar': 'Editar Stock',
     'AdminUsuarios': 'Usuarios',
+    'WarehouseRequestList': 'Solicitudes a Bodega',
+    'ProductReception': 'Recepción de Productos',
   }
   return map[route.name] || 'Admin'
 })

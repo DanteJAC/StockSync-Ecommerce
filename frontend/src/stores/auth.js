@@ -19,7 +19,7 @@ export const useAuthStore = defineStore('auth', () => {
     // Función auxiliar interna para guardar los datos de sesión y evitar repetir código
     function setSessionData(data, forcePasswordChange = false) {
         token.value = data.token
-        user.value = { email: data.email, nombre: data.nombre, role: data.role }
+        user.value = { email: data.email, nombre: data.nombre, role: data.role, assignedWarehouse: data.assignedWarehouse }
         mustChangePassword.value = forcePasswordChange
 
         localStorage.setItem('jwt', data.token)

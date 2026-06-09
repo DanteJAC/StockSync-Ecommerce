@@ -43,6 +43,11 @@ public class User  implements UserDetails {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_warehouse_id")
+    private com.stockSync.backend.stock.model.Warehouse assignedWarehouse;
+
+    @Builder.Default
     @Column(nullable = false)
     private boolean forcePasswordChange = false;
 
@@ -51,6 +56,10 @@ public class User  implements UserDetails {
 
     @Column(name = "reset_password_token_expiry")
     private LocalDateTime resetPasswordTokenExpiry;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean active = true;
 
     @JsonIgnore
     @Override
@@ -61,6 +70,11 @@ public class User  implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return active;
     }
     
 }

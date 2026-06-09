@@ -1,9 +1,9 @@
 <template>
   <v-card elevation="2">
     <v-card-title class="d-flex justify-space-between align-center">
-      <span>Bodegas</span>
+      <span>Locales / Bodegas</span>
       <v-btn color="primary" to="/admin/bodegas/nuevo" prepend-icon="mdi-plus">
-        Nueva Bodega
+        Nuevo Local/Bodega
       </v-btn>
     </v-card-title>
 
@@ -45,7 +45,7 @@
           </tr>
           <tr v-if="!warehouses.length && !loading">
             <td colspan="5" class="text-center text-medium-emphasis py-6">
-              No hay bodegas registradas
+              No hay locales ni bodegas registradas
             </td>
           </tr>
         </tbody>
@@ -54,7 +54,7 @@
 
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
-        <v-card-title>Eliminar Bodega</v-card-title>
+        <v-card-title>Eliminar Local/Bodega</v-card-title>
         <v-card-text>
           ¿Estás seguro de eliminar "{{ warehouseToDelete?.name }}"?
         </v-card-text>

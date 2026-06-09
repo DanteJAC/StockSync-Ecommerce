@@ -105,6 +105,16 @@ const routes = [
         name: 'AdminUsuarios',
         component: () => import('../views/admin/UserManagement.vue'),
       },
+      {
+        path: 'solicitudes',
+        name: 'WarehouseRequestList',
+        component: () => import('../views/admin/WarehouseRequestList.vue'),
+      },
+      {
+        path: 'recepcion',
+        name: 'ProductReception',
+        component: () => import('../views/admin/ProductReception.vue'),
+      },
     ],
   },
 ]

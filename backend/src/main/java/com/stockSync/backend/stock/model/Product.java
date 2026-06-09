@@ -40,6 +40,9 @@ public class Product {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @Column(name = "min_stock_level", nullable = false)
+    private Integer minStockLevel = 5;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;

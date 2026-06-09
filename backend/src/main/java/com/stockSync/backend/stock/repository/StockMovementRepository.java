@@ -4,6 +4,7 @@ import com.stockSync.backend.stock.model.StockMovement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -20,4 +21,6 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
 
     // Rastrear movimientos por tipo (ej: "MERMA", "TRASLADO")
     List<StockMovement> findByMovementType(String movementType);
+
+    List<StockMovement> findByProductIdAndMovementTypeAndCreatedAtAfter(Long productId, String movementType, LocalDateTime createdAt);
 }
