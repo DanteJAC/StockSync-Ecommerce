@@ -1,0 +1,1 @@
+import{o as r}from"./index-DVhonZfD.js";function u(){return r.get("/v1/warehouses")}function o(e){return r.get(`/v1/warehouses/${e}`)}function a(e){return r.post("/v1/warehouses",e)}function n(e,s){return r.put(`/v1/warehouses/${e}`,s)}function h(e){return r.delete(`/v1/warehouses/${e}`)}export{u as a,a as c,h as d,o as g,n as u};

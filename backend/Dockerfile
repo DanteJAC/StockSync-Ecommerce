@@ -7,8 +7,8 @@ WORKDIR /app
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
 
-# ✅ Dar permisos de ejecución al wrapper
-RUN chmod +x mvnw
+# ✅ Dar permisos de ejecución al wrapper y arreglar formato Windows
+RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
 
 # Descargar dependencias
 RUN ./mvnw dependency:go-offline

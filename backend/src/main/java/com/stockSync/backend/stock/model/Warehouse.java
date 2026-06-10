@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import com.stockSync.backend.user.model.User;
 import java.time.LocalDateTime; // <-- Asegúrate de importar LocalDateTime
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -32,6 +33,7 @@ public class Warehouse {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt; // <-- Con "d" al final y LocalDateTime
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
