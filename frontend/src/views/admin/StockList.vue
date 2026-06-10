@@ -1,8 +1,8 @@
 <template>
   <v-card elevation="2">
-    <v-card-title class="d-flex justify-space-between align-center">
-      <span>Stock</span>
-      <div class="d-flex ga-2">
+    <v-card-title class="d-flex flex-column flex-sm-row justify-space-between align-sm-center ga-3">
+      <span class="text-h6">Stock</span>
+      <div class="d-flex flex-column flex-sm-row ga-2 w-100 w-sm-auto">
         <v-btn color="primary" to="/admin/stock/nuevo" prepend-icon="mdi-plus">
           Nuevo Stock
         </v-btn>
@@ -15,7 +15,7 @@
     <v-card-text>
       <v-progress-linear v-if="loading" indeterminate color="primary" />
 
-      <div class="overflow-x-auto">
+      <div class="table-container">
         <v-table class="text-no-wrap" density="comfortable">
           <thead>
             <tr>
@@ -56,7 +56,7 @@
       </div>
     </v-card-text>
 
-    <v-dialog v-model="deleteDialog" max-width="400">
+    <v-dialog v-model="deleteDialog" max-width="400" width="95%">
       <v-card>
         <v-card-title class="text-wrap">Eliminar Stock</v-card-title>
         <v-card-text>
@@ -72,7 +72,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="showTransfer" max-width="500">
+    <v-dialog v-model="showTransfer" max-width="500" width="95%">
       <v-card>
         <v-card-title class="text-wrap">Transferir Stock</v-card-title>
         <v-card-text>
@@ -221,3 +221,40 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+
+  .table-container {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :deep(.v-table) {
+    min-width: 750px;
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  :deep(.v-card-title) {
+    padding: 16px;
+  }
+
+  :deep(.v-card-text) {
+    padding: 12px;
+  }
+
+  :deep(.v-btn) {
+    width: 100%;
+  }
+
+}
+
+</style>

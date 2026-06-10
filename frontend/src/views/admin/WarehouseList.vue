@@ -1,8 +1,8 @@
 <template>
   <v-card elevation="2">
-    <v-card-title class="d-flex justify-space-between align-center">
+    <v-card-title class="d-flex flex-column flex-sm-row justify-space-between align-sm-center ga-3">
       <span>Locales / Bodegas</span>
-      <v-btn color="primary" to="/admin/bodegas/nuevo" prepend-icon="mdi-plus">
+      <v-btn color="primary" to="/admin/bodegas/nuevo" prepend-icon="mdi-plus" class="create-btn">
         Nuevo Local/Bodega
       </v-btn>
     </v-card-title>
@@ -10,7 +10,7 @@
     <v-card-text>
       <v-progress-linear v-if="loading" indeterminate color="primary" />
 
-      <div class="overflow-x-auto">
+      <div class="table-container">
         <v-table class="text-no-wrap" density="comfortable">
           <thead>
             <tr>
@@ -54,7 +54,7 @@
       </div>
     </v-card-text>
 
-    <v-dialog v-model="deleteDialog" max-width="400">
+    <v-dialog v-model="deleteDialog" max-width="400" width="95%">
       <v-card>
         <v-card-title class="text-wrap">Eliminar Local/Bodega</v-card-title>
         <v-card-text>
@@ -112,3 +112,49 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+
+  .table-container {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :deep(.v-table) {
+    min-width: 700px;
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  :deep(.v-card-title) {
+    padding: 16px;
+  }
+
+  :deep(.v-card-text) {
+    padding: 12px;
+  }
+
+  .create-btn {
+    width: 100%;
+  }
+
+  :deep(.v-dialog .v-card-actions) {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  :deep(.v-dialog .v-btn) {
+    width: 100%;
+  }
+
+}
+
+</style>
