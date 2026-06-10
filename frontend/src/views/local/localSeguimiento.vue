@@ -61,7 +61,7 @@ onMounted(async () => {
   loading.value = true
   try {
     if (authStore.assignedWarehouseId) {
-      await store.fetchIncoming(authStore.assignedWarehouseId)
+      await store.fetchOutgoing(authStore.assignedWarehouseId)
     }
   } finally {
     loading.value = false
@@ -69,7 +69,7 @@ onMounted(async () => {
 })
 
 const solicitudes = computed(() => {
-  return [...store.incomingRequests]
+  return [...store.outgoingRequests]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 })
 
