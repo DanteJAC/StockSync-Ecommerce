@@ -1,6 +1,22 @@
 <template>
   <v-container fluid>
-    <h1 class="text-h4 mb-6">Dashboard Local</h1>
+    <div class="d-flex justify-space-between align-center mb-6">
+    <h1 class="text-h4 mb-0">Dashboard Local</h1>
+      <v-menu>
+        <template v-slot:activator="{ props }">
+          <v-btn icon="mdi-dots-vertical" variant="text" v-bind="props"></v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item link>
+            <v-list-item-title>Generar Reporte</v-list-item-title>
+          </v-list-item>
+          <v-list-item link>
+            <v-list-item-title>Configuración</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </div>
 
     <v-row>
       <v-col cols="12" md="3">
@@ -39,6 +55,7 @@
         </v-card>
       </v-col>
     </v-row>
+
 
     <!-- Productos con bajo stock -->
     <v-card class="mt-6">
@@ -120,6 +137,9 @@
     </v-card>
   </v-container>
 </template>
+
+
+
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'

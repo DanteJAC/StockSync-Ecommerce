@@ -49,6 +49,7 @@ const routes = [
     path: '/local',
     component: () => import('../components/LocalLayout.vue'),
     meta: { requiresAuth: true },
+   //
     children: [
       {
         path: '',
