@@ -46,17 +46,19 @@
         <v-btn
           to="/register"
           variant="text"
-          class="ml-2"
+          class="ml-1 px-2"
         >
-          Registrarse
+          <span class="d-none d-sm-flex">Registrarse</span>
+          <v-icon class="d-flex d-sm-none">mdi-account-plus</v-icon>
         </v-btn>
         <v-btn
           to="/login"
           variant="tonal"
           color="primary"
-          class="ml-2"
+          class="ml-1 px-2"
         >
-          Iniciar Sesión
+          <span class="d-none d-sm-flex">Iniciar Sesión</span>
+          <v-icon class="d-flex d-sm-none">mdi-login</v-icon>
         </v-btn>
       </template>
     </v-container>
