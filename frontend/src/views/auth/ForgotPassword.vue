@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="fill-height bg-grey-lighten-4">
-    <v-row align="center" justify="center">
+    <v-row class="mx-0" align="center" justify="center">
       <v-col cols="12" sm="8" md="4" lg="3">
         <v-card class="elevation-12 rounded-xl" :loading="loading">
           <v-card-title class="text-center bg-primary text-white py-4 text-h5 font-weight-bold">

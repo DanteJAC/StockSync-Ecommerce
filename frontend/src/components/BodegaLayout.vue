@@ -41,6 +41,7 @@
             prepend-icon="mdi-view-dashboard"
             title="Dashboard"
             to="/bodega"
+            exact
             rounded="lg"
             class="mx-2 my-1"
         />
@@ -90,10 +91,21 @@
         />
 
         <v-list-item
+            v-if="auth.isAdmin"
+            prepend-icon="mdi-arrow-left"
+            title="Volver al Admin"
+            rounded="lg"
+            class="mx-2 my-1"
+            base-color="info"
+            @click="volverAdmin"
+        />
+
+        <v-list-item
             prepend-icon="mdi-logout"
             title="Cerrar Sesión"
             rounded="lg"
             class="mx-2 my-1 mb-2"
+            base-color="error"
             @click="handleLogout"
         />
 
@@ -139,9 +151,11 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDisplay, useTheme } from 'vuetify'
+import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
 const router = useRouter()
+const auth = useAuthStore()
 
 const theme = useTheme()
 
@@ -150,11 +164,11 @@ const { mobile, mdAndUp, smAndDown } = useDisplay()
 const drawer = ref(true)
 const rail = ref(false)
 
-const nombre = 'Usuario Bodega'
-const email = 'bodega@stocksync.cl'
+const nombre = computed(() => auth.userName || 'Usuario Bodega')
+const email = computed(() => auth.userEmail || 'bodega@stocksync.cl')
 
 const inicial = computed(() => {
-  return nombre
+  return nombre.value
       .split(' ')
       .map(w => w[0])
       .join('')
@@ -203,12 +217,13 @@ function toggleTheme() {
 }
 
 function handleLogout() {
+  auth.logout()
+  router.push('/login')
+}
 
-  // Por ahora solo vuelve al inicio.
-  // Cuando conecten backend aquí irá auth.logout()
-
-  router.push('/')
-
+function volverAdmin() {
+  auth.setAdminViewWarehouseId(null)
+  router.push('/admin')
 }
 </script>
 

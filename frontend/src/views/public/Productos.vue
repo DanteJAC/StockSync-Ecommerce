@@ -5,7 +5,7 @@
     <v-container class="py-8">
       <h1 class="text-h3 font-weight-bold mb-6">Productos</h1>
 
-      <v-row class="mb-4">
+      <v-row class="mx-0 mb-4">
         <v-col cols="12" sm="6" md="4">
           <v-select
             v-model="selectedCategory"
@@ -30,7 +30,7 @@
 
       <v-progress-linear v-if="loading" indeterminate color="primary" />
 
-      <v-row v-else>
+      <v-row class="mx-0" v-else>
         <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="4" lg="3">
           <v-card elevation="2" class="h-100 d-flex flex-column">
             <v-card-title class="text-body-1 font-weight-bold">

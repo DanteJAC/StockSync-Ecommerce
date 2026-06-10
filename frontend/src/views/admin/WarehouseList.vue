@@ -10,51 +10,53 @@
     <v-card-text>
       <v-progress-linear v-if="loading" indeterminate color="primary" />
 
-      <v-table density="comfortable">
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Nombre</th>
-            <th>Dirección</th>
-            <th>Ciudad</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="wh in warehouses" :key="wh.id">
-            <td><code>{{ wh.code }}</code></td>
-            <td class="font-weight-medium">{{ wh.name }}</td>
-            <td>{{ wh.address }}</td>
-            <td>{{ wh.city }}</td>
-            <td>
-              <v-btn
-                icon="mdi-pencil"
-                variant="text"
-                color="primary"
-                size="small"
-                :to="`/admin/bodegas/editar/${wh.id}`"
-              />
-              <v-btn
-                icon="mdi-delete"
-                variant="text"
-                color="error"
-                size="small"
-                @click="confirmDelete(wh)"
-              />
-            </td>
-          </tr>
-          <tr v-if="!warehouses.length && !loading">
-            <td colspan="5" class="text-center text-medium-emphasis py-6">
-              No hay locales ni bodegas registradas
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+      <div class="overflow-x-auto">
+        <v-table class="text-no-wrap" density="comfortable">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Dirección</th>
+              <th>Ciudad</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="wh in warehouses" :key="wh.id">
+              <td><code>{{ wh.code }}</code></td>
+              <td class="font-weight-medium">{{ wh.name }}</td>
+              <td>{{ wh.address }}</td>
+              <td>{{ wh.city }}</td>
+              <td>
+                <v-btn
+                  icon="mdi-pencil"
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  :to="`/admin/bodegas/editar/${wh.id}`"
+                />
+                <v-btn
+                  icon="mdi-delete"
+                  variant="text"
+                  color="error"
+                  size="small"
+                  @click="confirmDelete(wh)"
+                />
+              </td>
+            </tr>
+            <tr v-if="!warehouses.length && !loading">
+              <td colspan="5" class="text-center text-medium-emphasis py-6">
+                No hay locales ni bodegas registradas
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+      </div>
     </v-card-text>
 
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
-        <v-card-title>Eliminar Local/Bodega</v-card-title>
+        <v-card-title class="text-wrap">Eliminar Local/Bodega</v-card-title>
         <v-card-text>
           ¿Estás seguro de eliminar "{{ warehouseToDelete?.name }}"?
         </v-card-text>

@@ -26,6 +26,7 @@ replay_pid*
 # Environment variables (credentials)
 .env
 .env.*
+backend/env.yaml
 
 # Maven (Backend)
 backend/target/

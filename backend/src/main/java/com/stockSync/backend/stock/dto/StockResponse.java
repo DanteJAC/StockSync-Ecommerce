@@ -11,6 +11,8 @@ public class StockResponse {
     private String productName;
     private Long warehouseId;
     private String warehouseName;
+    private String sku;
+    private String categoryName;
     private Integer quantity;
     private LocalDateTime lastUpdate;
 }

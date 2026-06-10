@@ -5,6 +5,7 @@ import * as api from '../api/stock'
 export const useStockStore = defineStore('stock', () => {
   const stocks = ref([])
   const loading = ref(false)
+  const movements = ref([])
 
   async function fetchAll() {
     loading.value = true
@@ -41,5 +42,21 @@ export const useStockStore = defineStore('stock', () => {
     stocks.value = stocks.value.filter((s) => s.id !== id)
   }
 
-  return { stocks, loading, fetchAll, fetchByWarehouse, add, update, transfer, remove }
+  async function sale(stockData) {
+    const { data } = await api.processSale(stockData)
+    return data
+  }
+
+  async function fetchMovements(type = null, warehouseId = null) {
+    loading.value = true
+    try {
+      const { data } = await api.getMovements(type, warehouseId)
+      movements.value = data
+      return data
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { stocks, loading, movements, fetchAll, fetchByWarehouse, add, update, transfer, remove, sale, fetchMovements }
 })

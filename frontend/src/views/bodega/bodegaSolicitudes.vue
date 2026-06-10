@@ -2,7 +2,7 @@
   <v-container fluid class="pa-6">
 
     <div class="mb-6">
-      <h1 class="text-h4 font-weight-bold">
+      <h1 class="text-h5 text-md-h4 font-weight-bold">
         Solicitudes de Reposición
       </h1>
 
@@ -11,7 +11,7 @@
       </p>
     </div>
 
-    <v-row>
+    <v-row class="mx-0">
 
       <v-col
           v-for="solicitud in solicitudes"
@@ -57,7 +57,7 @@
               </v-icon>
 
               <strong>Local:</strong>
-              {{ solicitud.local }}
+              {{ solicitud.destinationWarehouseName }}
             </div>
 
             <div class="info-item">
@@ -66,7 +66,7 @@
               </v-icon>
 
               <strong>Producto:</strong>
-              {{ solicitud.producto }}
+              {{ solicitud.productName }}
             </div>
 
             <div class="info-item">
@@ -75,7 +75,7 @@
               </v-icon>
 
               <strong>Cantidad:</strong>
-              {{ solicitud.cantidad }}
+              {{ solicitud.quantity }}
             </div>
 
             <div class="info-item">
@@ -84,7 +84,7 @@
               </v-icon>
 
               <strong>Fecha:</strong>
-              {{ solicitud.fecha }}
+              {{ new Date(solicitud.createdAt).toLocaleDateString() }}
             </div>
 
           </v-card-text>
@@ -103,6 +103,7 @@
                 color="error"
                 variant="outlined"
                 prepend-icon="mdi-close"
+                @click="rechazar(solicitud)"
             >
               Rechazar
             </v-btn>
@@ -119,32 +120,44 @@
 
 <script setup>
 
-const solicitudes = [
-  {
-    id: 1,
-    local: 'Local Providencia',
-    producto: 'Coca Cola',
-    cantidad: 50,
-    fecha: '09/06/2026'
-  },
-  {
-    id: 2,
-    local: 'Local Maipú',
-    producto: 'Papas Fritas',
-    cantidad: 30,
-    fecha: '09/06/2026'
-  },
-  {
-    id: 3,
-    local: 'Local Santiago Centro',
-    producto: 'Agua Mineral',
-    cantidad: 40,
-    fecha: '08/06/2026'
-  }
-]
+import { ref, computed, onMounted } from 'vue'
+import { useStockRequestsStore } from '../../stores/stockRequests'
+import { useAuthStore } from '../../stores/auth'
 
-function aprobar(solicitud) {
-  alert(`Solicitud ${solicitud.id} aprobada`)
+const store = useStockRequestsStore()
+const authStore = useAuthStore()
+
+const loading = ref(false)
+const solicitudes = ref([])
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    if (authStore.assignedWarehouseId) {
+      await store.fetchIncoming(authStore.assignedWarehouseId)
+      solicitudes.value = store.incomingRequests.filter(r => r.status === 'PENDIENTE')
+    }
+  } finally {
+    loading.value = false
+  }
+})
+
+async function aprobar(solicitud) {
+  try {
+    await store.updateStatus(solicitud.id, 'APROBADO')
+    solicitudes.value = solicitudes.value.filter(s => s.id !== solicitud.id)
+  } catch(e) {
+    alert('Error al aprobar solicitud')
+  }
+}
+
+async function rechazar(solicitud) {
+  try {
+    await store.updateStatus(solicitud.id, 'RECHAZADO')
+    solicitudes.value = solicitudes.value.filter(s => s.id !== solicitud.id)
+  } catch(e) {
+    alert('Error al rechazar solicitud')
+  }
 }
 
 </script>

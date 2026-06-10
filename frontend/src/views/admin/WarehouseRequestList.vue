@@ -9,7 +9,7 @@
           </v-btn>
         </template>
         <v-card>
-          <v-card-title>Crear Solicitud</v-card-title>
+          <v-card-title class="text-wrap">Crear Solicitud</v-card-title>
           <v-card-text>
             <v-form @submit.prevent="handleCreate" ref="form">
               <v-select
@@ -60,37 +60,39 @@
     <v-card-text>
       <v-progress-linear v-if="loading" indeterminate color="primary" />
 
-      <v-table density="comfortable">
-        <thead>
-          <tr>
-            <th>Producto (SKU)</th>
-            <th>De Bodega</th>
-            <th>Hacia Local</th>
-            <th>Cantidad</th>
-            <th>Estado</th>
-            <th>Fecha</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="req in requests" :key="req.id">
-            <td>{{ req.productName }} <span class="text-caption text-medium-emphasis">({{ req.sku }})</span></td>
-            <td>{{ req.sourceWarehouseName }}</td>
-            <td>{{ req.destinationWarehouseName }}</td>
-            <td>{{ req.quantity }}</td>
-            <td>
-              <v-chip :color="getStatusColor(req.status)" size="small">
-                {{ req.status }}
-              </v-chip>
-            </td>
-            <td>{{ new Date(req.createdAt).toLocaleDateString() }}</td>
-          </tr>
-          <tr v-if="!requests.length && !loading">
-            <td colspan="6" class="text-center text-medium-emphasis py-6">
-              No hay solicitudes registradas.
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+      <div class="overflow-x-auto">
+        <v-table class="text-no-wrap" density="comfortable">
+          <thead>
+            <tr>
+              <th>Producto (SKU)</th>
+              <th>De Bodega</th>
+              <th>Hacia Local</th>
+              <th>Cantidad</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="req in requests" :key="req.id">
+              <td>{{ req.productName }} <span class="text-caption text-medium-emphasis">({{ req.sku }})</span></td>
+              <td>{{ req.sourceWarehouseName }}</td>
+              <td>{{ req.destinationWarehouseName }}</td>
+              <td>{{ req.quantity }}</td>
+              <td>
+                <v-chip :color="getStatusColor(req.status)" size="small">
+                  {{ req.status }}
+                </v-chip>
+              </td>
+              <td>{{ new Date(req.createdAt).toLocaleDateString() }}</td>
+            </tr>
+            <tr v-if="!requests.length && !loading">
+              <td colspan="6" class="text-center text-medium-emphasis py-6">
+                No hay solicitudes registradas.
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+      </div>
     </v-card-text>
   </v-card>
 </template>

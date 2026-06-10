@@ -15,3 +15,7 @@ export function inviteUser(email, role, assignedWarehouseId) {
 export function updateUser(id, data) {
   return client.patch(`/users/${id}`, data)
 }
+
+export function deleteUser(id) {
+  return client.delete(`/users/${id}`)
+}

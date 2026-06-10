@@ -3,7 +3,7 @@
 
     <!-- Encabezado -->
     <div class="mb-6">
-      <h1 class="text-h4 font-weight-bold">
+      <h1 class="text-h5 text-md-h4 font-weight-bold">
         Gestión de Despachos
       </h1>
 
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Resumen -->
-    <v-row class="mb-6">
+    <v-row class="mx-0 mb-6">
 
       <v-col cols="12" sm="6" md="3">
         <v-card class="text-center pa-4">
@@ -25,8 +25,8 @@
             Preparando
           </div>
 
-          <div class="text-h4 font-weight-bold">
-            3
+          <div class="text-h5 text-md-h4 font-weight-bold">
+            {{ preparandoCount }}
           </div>
         </v-card>
       </v-col>
@@ -41,8 +41,8 @@
             En Ruta
           </div>
 
-          <div class="text-h4 font-weight-bold">
-            5
+          <div class="text-h5 text-md-h4 font-weight-bold">
+            {{ enRutaCount }}
           </div>
         </v-card>
       </v-col>
@@ -57,8 +57,8 @@
             Entregados Hoy
           </div>
 
-          <div class="text-h4 font-weight-bold">
-            12
+          <div class="text-h5 text-md-h4 font-weight-bold">
+            {{ entregadosHoyCount }}
           </div>
         </v-card>
       </v-col>
@@ -66,7 +66,7 @@
     </v-row>
 
     <!-- Despachos -->
-    <v-row>
+    <v-row class="mx-0">
 
       <v-col
           v-for="despacho in despachos"
@@ -108,12 +108,12 @@
 
             <div class="mb-2">
               <strong>Local:</strong>
-              {{ despacho.local }}
+              {{ despacho.destinationWarehouseName }}
             </div>
 
             <div class="mb-2">
               <strong>Fecha:</strong>
-              {{ despacho.fecha }}
+              {{ new Date(despacho.createdAt).toLocaleDateString() }}
             </div>
 
             <div class="mb-4">
@@ -122,10 +122,7 @@
 
             <v-list density="compact">
 
-              <v-list-item
-                  v-for="producto in despacho.productos"
-                  :key="producto.nombre"
-              >
+              <v-list-item>
                 <template #prepend>
                   <v-icon>
                     mdi-package-variant
@@ -133,11 +130,11 @@
                 </template>
 
                 <v-list-item-title>
-                  {{ producto.nombre }}
+                  {{ despacho.productName }}
                 </v-list-item-title>
 
                 <v-list-item-subtitle>
-                  Cantidad: {{ producto.cantidad }}
+                  Cantidad: {{ despacho.quantity }}
                 </v-list-item-subtitle>
 
               </v-list-item>
@@ -151,15 +148,11 @@
           <v-card-actions>
 
             <v-btn
-                color="primary"
-                prepend-icon="mdi-package-variant-closed"
-            >
-              Preparar
-            </v-btn>
-
-            <v-btn
+                v-if="despacho.estado === 'APROBADO'"
                 color="info"
                 prepend-icon="mdi-truck-fast"
+                @click="despachar(despacho)"
+                :loading="loadingDespacho === despacho.id"
             >
               Despachar
             </v-btn>
@@ -177,45 +170,63 @@
 
 <script setup>
 
-const despachos = [
-  {
-    id: 'DESP-001',
-    local: 'Local Providencia',
-    fecha: '09/06/2026',
-    estado: 'Preparando',
-    productos: [
-      { nombre: 'Coca Cola', cantidad: 50 },
-      { nombre: 'Agua Mineral', cantidad: 30 }
-    ]
-  },
-  {
-    id: 'DESP-002',
-    local: 'Local Maipú',
-    fecha: '09/06/2026',
-    estado: 'En Ruta',
-    productos: [
-      { nombre: 'Papas Fritas', cantidad: 40 }
-    ]
+import { ref, computed, onMounted } from 'vue'
+import { useStockRequestsStore } from '../../stores/stockRequests'
+import { useAuthStore } from '../../stores/auth'
+
+const store = useStockRequestsStore()
+const authStore = useAuthStore()
+
+const loading = ref(false)
+const loadingDespacho = ref(null)
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    if (authStore.assignedWarehouseId) {
+      await store.fetchIncoming(authStore.assignedWarehouseId)
+    }
+  } finally {
+    loading.value = false
   }
-]
+})
+
+const despachos = computed(() => {
+  return store.incomingRequests
+      .filter(r => ['APROBADO', 'ENVIADO', 'RECIBIDO'].includes(r.status))
+      .map(r => ({
+        ...r,
+        estado: r.status // APROBADO, ENVIADO, RECIBIDO
+      }))
+})
+
+const preparandoCount = computed(() => despachos.value.filter(d => d.estado === 'APROBADO').length)
+const enRutaCount = computed(() => despachos.value.filter(d => d.estado === 'ENVIADO').length)
+const entregadosHoyCount = computed(() => despachos.value.filter(d => d.estado === 'RECIBIDO').length)
+
+async function despachar(despacho) {
+  loadingDespacho.value = despacho.id
+  try {
+    await store.updateStatus(despacho.id, 'ENVIADO')
+    await store.fetchIncoming(authStore.assignedWarehouseId)
+  } catch (e) {
+    alert('Error al despachar el pedido')
+  } finally {
+    loadingDespacho.value = null
+  }
+}
 
 function estadoColor(estado) {
-
   switch (estado) {
-
-    case 'Preparando':
+    case 'APROBADO':
       return 'warning'
-
-    case 'En Ruta':
+    case 'ENVIADO':
       return 'info'
-
-    case 'Entregado':
+    case 'RECIBIDO':
       return 'success'
-
     default:
       return 'grey'
   }
-
 }
 </script>
 

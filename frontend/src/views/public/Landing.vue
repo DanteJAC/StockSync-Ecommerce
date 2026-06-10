@@ -4,12 +4,12 @@
 
     <section class="hero-section hero-background d-flex align-center">
       <v-container class="text-center">
-        <v-row justify="center">
+        <v-row class="mx-0" justify="center">
           <v-col cols="12" md="8">
 
             <v-icon size="80" color="primary" class="mb-6 floating-icon">mdi-package-variant-closed</v-icon>
 
-            <h1 class="text-h1 font-weight-bold mb-6 text-white">
+            <h1 class="text-h3 text-md-h1 font-weight-bold mb-6 text-white">
               StockSync
             </h1>
 
@@ -23,29 +23,32 @@
               gestionar productos y facilitar la administración en tiempo real.
             </p>
             <br>
-            <v-btn
-                to="/login"
-                color="primary"
-                size="x-large"
-                variant="flat"
-                rounded="xl"
-                elevation="4"
-                class="mr-4 mb-2 px-8"
-            >
-              <v-icon start>mdi-login</v-icon>
-              Iniciar Sesión
-            </v-btn>
-            <v-btn
-                to="/register"
-                size="x-large"
-                variant="outlined"
-                rounded="xl"
-                class="mb-2 px-8 text-white"
-                style="border-color: white;"
-            >
-              <v-icon start color="white">mdi-account-plus</v-icon>
-              Registrarse
-            </v-btn>
+            <div class="d-flex flex-column flex-sm-row justify-center align-center w-100 px-4">
+              <v-btn
+                  to="/login"
+                  color="primary"
+                  size="x-large"
+                  variant="flat"
+                  rounded="xl"
+                  elevation="4"
+                  class="mb-4 mb-sm-0 mr-sm-4 px-8 w-100"
+                  style="max-width: 300px;"
+              >
+                <v-icon start>mdi-login</v-icon>
+                Iniciar Sesión
+              </v-btn>
+              <v-btn
+                  to="/register"
+                  size="x-large"
+                  variant="outlined"
+                  rounded="xl"
+                  class="px-8 text-white w-100"
+                  style="border-color: white; max-width: 300px;"
+              >
+                <v-icon start color="white">mdi-account-plus</v-icon>
+                Registrarse
+              </v-btn>
+            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -53,8 +56,8 @@
 
     <section class="features-section py-12 bg-surface">
       <v-container>
-        <h2 class="text-h3 font-weight-bold text-center mb-10">Características</h2>
-        <v-row>
+        <h2 class="text-h5 text-md-h4 text-md-h3 font-weight-bold text-center mb-10">Características</h2>
+        <v-row class="mx-0">
           <v-col v-for="feature in features" :key="feature.title" cols="12" md="4">
             <v-card class="pa-6 text-center h-100" elevation="2">
               <v-icon size="48" :color="feature.color" class="mb-4">{{ feature.icon }}</v-icon>
@@ -68,7 +71,7 @@
 
     <section class="cta-section py-12 text-center">
       <v-container>
-        <h2 class="text-h3 font-weight-bold text-white mb-4">¿Listo para gestionar tu inventario?</h2>
+        <h2 class="text-h5 text-md-h4 text-md-h3 font-weight-bold text-white mb-4">¿Listo para gestionar tu inventario?</h2>
         <v-btn
           to="/register"
           size="x-large"
@@ -141,7 +144,6 @@ const features = [
 
 .cta-section {
   background-color: rgb(var(--v-theme-primary)) !important;
-  //background: linear-gradient(135deg, #166534, #4ADE80);
 }
 
 
@@ -171,11 +173,7 @@ const features = [
   line-height: 1.8;
 }
 
-h1,
-.hero-description,
-.text-h5 {
-  //text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-}
+
 
 /* BOTONES */
 

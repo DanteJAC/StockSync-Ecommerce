@@ -2,7 +2,7 @@
   <v-container fluid class="pa-6">
 
     <div class="mb-6">
-      <h1 class="text-h4 font-weight-bold">
+      <h1 class="text-h5 text-md-h4 font-weight-bold">
         Recepciones y Observaciones
       </h1>
 
@@ -12,7 +12,7 @@
     </div>
 
     <!-- Resumen -->
-    <v-row class="mb-6">
+    <v-row class="mx-0 mb-6">
 
       <v-col cols="12" sm="4">
         <v-card class="text-center pa-4">
@@ -27,8 +27,8 @@
             Recepciones Correctas
           </div>
 
-          <div class="text-h4 font-weight-bold">
-            12
+          <div class="text-h5 text-md-h4 font-weight-bold">
+            {{ correctasCount }}
           </div>
         </v-card>
       </v-col>
@@ -46,8 +46,8 @@
             Con Observaciones
           </div>
 
-          <div class="text-h4 font-weight-bold">
-            3
+          <div class="text-h5 text-md-h4 font-weight-bold">
+            {{ observacionesCount }}
           </div>
         </v-card>
       </v-col>
@@ -65,8 +65,8 @@
             Total Entregas
           </div>
 
-          <div class="text-h4 font-weight-bold">
-            15
+          <div class="text-h5 text-md-h4 font-weight-bold">
+            {{ totalEntregasCount }}
           </div>
         </v-card>
       </v-col>
@@ -76,7 +76,7 @@
     <!-- Tabla -->
     <v-card elevation="4">
 
-      <v-card-title>
+      <v-card-title class="text-wrap">
         Historial de Recepciones
       </v-card-title>
 
@@ -84,7 +84,7 @@
 
       <div class="table-wrapper">
 
-        <v-table>
+        <v-table class="text-no-wrap">
 
           <thead>
           <tr>
@@ -104,36 +104,23 @@
           >
             <td>{{ item.id }}</td>
 
-            <td>{{ item.local }}</td>
+            <td>{{ item.destinationWarehouseName }}</td>
 
-            <td>{{ item.fecha }}</td>
+            <td>{{ new Date(item.updatedAt || item.createdAt).toLocaleDateString() }}</td>
 
             <td>
               <v-chip
-                  :color="item.observacion ? 'warning' : 'success'"
+                  :color="'success'"
                   variant="tonal"
               >
-                {{
-                  item.observacion
-                      ? 'Observado'
-                      : 'Recibido'
-                }}
+                Recibido
               </v-chip>
             </td>
 
             <td>
-
-              <span v-if="item.observacion">
-                {{ item.observacion }}
-              </span>
-
-              <span
-                  v-else
-                  class="text-success"
-              >
+              <span class="text-success">
                 Sin observaciones
               </span>
-
             </td>
 
           </tr>
@@ -150,33 +137,32 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useStockRequestsStore } from '../../stores/stockRequests'
+import { useAuthStore } from '../../stores/auth'
 
-const recepciones = [
-  {
-    id: 'DESP-001',
-    local: 'Providencia',
-    fecha: '10/06/2026',
-    observacion: null
-  },
-  {
-    id: 'DESP-002',
-    local: 'Maipú',
-    fecha: '10/06/2026',
-    observacion: 'Faltaron 5 Coca Cola'
-  },
-  {
-    id: 'DESP-003',
-    local: 'Santiago Centro',
-    fecha: '09/06/2026',
-    observacion: null
-  },
-  {
-    id: 'DESP-004',
-    local: 'La Florida',
-    fecha: '09/06/2026',
-    observacion: 'Producto dañado'
+const store = useStockRequestsStore()
+const authStore = useAuthStore()
+const loading = ref(false)
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    if (authStore.assignedWarehouseId) {
+      await store.fetchIncoming(authStore.assignedWarehouseId)
+    }
+  } finally {
+    loading.value = false
   }
-]
+})
+
+const recepciones = computed(() => {
+  return store.incomingRequests.filter(r => r.status === 'RECIBIDO')
+})
+
+const correctasCount = computed(() => recepciones.value.length)
+const observacionesCount = computed(() => 0) // El backend actual no soporta observaciones en StockRequest
+const totalEntregasCount = computed(() => correctasCount.value + observacionesCount.value)
 
 </script>
 

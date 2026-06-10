@@ -1,6 +1,6 @@
 <template>
   <v-card elevation="2">
-    <v-card-title>{{ isEdit ? 'Editar Producto' : 'Nuevo Producto' }}</v-card-title>
+    <v-card-title class="text-wrap">{{ isEdit ? 'Editar Producto' : 'Nuevo Producto' }}</v-card-title>
 
     <v-card-text>
       <v-alert v-if="error" type="error" variant="tonal" class="mb-4" closable @click:close="error = ''">
@@ -8,7 +8,7 @@
       </v-alert>
 
       <v-form @submit.prevent="handleSave">
-        <v-row>
+        <v-row class="mx-0">
           <v-col cols="12" md="6">
             <v-text-field
               v-model="form.name"
@@ -90,7 +90,7 @@
         </v-row>
 
         <v-divider class="my-4" />
-        <v-row>
+        <v-row class="mx-0">
           <v-col cols="12">
             <div class="d-flex align-center mb-2">
               <span class="text-subtitle-1 font-weight-medium">Stock por Bodega</span>
@@ -109,7 +109,7 @@
           </v-col>
         </v-row>
 
-        <v-row v-if="isEdit && form.warehouseStocks && form.warehouseStocks.length">
+        <v-row class="mx-0" v-if="isEdit && form.warehouseStocks && form.warehouseStocks.length">
           <v-col cols="12">
             <v-chip
               v-for="ws in form.warehouseStocks"
@@ -123,8 +123,8 @@
           </v-col>
         </v-row>
 
-        <v-row v-for="(entry, index) in form.warehouseStocks" :key="index" v-if="!isEdit">
-          <v-col cols="5">
+        <v-row class="mx-0" v-for="(entry, index) in form.warehouseStocks" :key="index" v-if="!isEdit">
+          <v-col cols="12" md="5">
             <v-select
               v-model="entry.warehouseId"
               :items="availableWarehouses"
@@ -144,7 +144,7 @@
               </template>
             </v-select>
           </v-col>
-          <v-col cols="5">
+          <v-col cols="12" md="5">
             <v-text-field
               v-model="entry.quantity"
               label="Cantidad"
@@ -154,7 +154,7 @@
               required
             />
           </v-col>
-          <v-col cols="2" class="d-flex align-center">
+          <v-col cols="12" md="2" class="d-flex align-center">
             <v-btn
               icon="mdi-delete"
               variant="text"
@@ -165,7 +165,7 @@
           </v-col>
         </v-row>
 
-        <v-row class="mt-4">
+        <v-row class="mx-0 mt-4">
           <v-col cols="12" class="d-flex ga-4">
             <v-btn
               type="submit"
@@ -184,7 +184,7 @@
 
     <v-dialog v-model="showCategoryDialog" max-width="400">
       <v-card>
-        <v-card-title>Nueva Categoría</v-card-title>
+        <v-card-title class="text-wrap">Nueva Categoría</v-card-title>
         <v-card-text>
           <v-alert v-if="catError" type="error" variant="tonal" class="mb-4" closable @click:close="catError = ''">
             {{ catError }}
@@ -213,7 +213,7 @@
 
     <v-dialog v-model="showWarehouseDialog" max-width="500">
       <v-card>
-        <v-card-title>Nueva Bodega</v-card-title>
+        <v-card-title class="text-wrap">Nueva Bodega</v-card-title>
         <v-card-text>
           <v-alert v-if="whError" type="error" variant="tonal" class="mb-4" closable @click:close="whError = ''">
             {{ whError }}

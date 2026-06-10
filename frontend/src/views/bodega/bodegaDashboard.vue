@@ -18,7 +18,7 @@
     </v-card>
 
     <!-- Cards -->
-    <v-row>
+    <v-row class="mx-0">
 
       <v-col cols="12" sm="6" md="3">
         <v-card class="dashboard-card text-center">
@@ -129,7 +129,7 @@
       <v-divider />
 
       <div class="table-wrapper">
-        <v-table>
+        <v-table class="text-no-wrap">
           <thead>
           <tr>
             <th>ID Solicitud</th>
@@ -148,19 +148,25 @@
               {{ solicitud.id }}
             </td>
 
-            <td>{{ solicitud.local }}</td>
+            <td>{{ solicitud.destinationWarehouseName }}</td>
 
-            <td>{{ solicitud.fecha }}</td>
+            <td>{{ new Date(solicitud.createdAt).toLocaleDateString() }}</td>
 
             <td>
               <v-chip
-                  :color="getEstadoColor(solicitud.estado)"
+                  :color="getEstadoColor(solicitud.status)"
                   variant="tonal"
                   size="small"
               >
-                {{ solicitud.estado }}
+                {{ solicitud.status }}
               </v-chip>
             </td>
+          </tr>
+          <tr v-if="loading">
+            <td colspan="4" class="text-center">Cargando...</td>
+          </tr>
+          <tr v-else-if="solicitudes.length === 0">
+            <td colspan="4" class="text-center">No hay solicitudes recientes</td>
           </tr>
           </tbody>
         </v-table>
@@ -172,53 +178,66 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '../../stores/auth'
+import { useStockStore } from '../../stores/stock'
+import { useStockRequestsStore } from '../../stores/stockRequests'
 
-const totalStock = 842
-const localesActivos = 12
-const solicitudesPendientes = 5
-const despachosHoy = 3
+const authStore = useAuthStore()
+const stockStore = useStockStore()
+const requestsStore = useStockRequestsStore()
 
-const solicitudes = [
-  {
-    id: 'SOL-001',
-    local: 'Local Santiago',
-    fecha: '06/06/2026',
-    estado: 'Pendiente'
-  },
-  {
-    id: 'SOL-002',
-    local: 'Local Maipú',
-    fecha: '06/06/2026',
-    estado: 'Aprobada'
-  },
-  {
-    id: 'SOL-003',
-    local: 'Local Puente Alto',
-    fecha: '05/06/2026',
-    estado: 'Pendiente'
-  },
-  {
-    id: 'SOL-004',
-    local: 'Local La Florida',
-    fecha: '05/06/2026',
-    estado: 'Despachada'
+const loading = ref(false)
+const stockData = ref([])
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    if (authStore.assignedWarehouseId) {
+      await requestsStore.fetchIncoming(authStore.assignedWarehouseId)
+      stockData.value = await stockStore.fetchByWarehouse(authStore.assignedWarehouseId)
+    }
+  } finally {
+    loading.value = false
   }
-]
+})
+
+const totalStock = computed(() => {
+  return stockData.value.reduce((acc, curr) => acc + curr.quantity, 0)
+})
+
+const localesActivos = ref(0) // We can leave this static or fetch warehouses
+
+const solicitudesPendientes = computed(() => {
+  return requestsStore.incomingRequests.filter(r => r.status === 'PENDIENTE').length
+})
+
+const despachosHoy = computed(() => {
+  const hoy = new Date().toLocaleDateString()
+  return requestsStore.incomingRequests.filter(r => 
+    (r.status === 'ENVIADO' || r.status === 'RECIBIDO') && 
+    new Date(r.updatedAt || r.createdAt).toLocaleDateString() === hoy
+  ).length
+})
+
+const solicitudes = computed(() => {
+  return [...requestsStore.incomingRequests]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5)
+})
 
 function getEstadoColor(estado) {
   switch (estado) {
-    case 'Pendiente':
+    case 'PENDIENTE':
       return 'warning'
-
-    case 'Aprobada':
+    case 'APROBADO':
       return 'success'
-
-    case 'Despachada':
+    case 'ENVIADO':
       return 'info'
-
-    case 'Rechazada':
+    case 'RECHAZADO':
       return 'error'
-
+    case 'RECIBIDO':
+      return 'primary'
     default:
       return 'grey'
   }

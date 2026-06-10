@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface StockRepository extends JpaRepository<Stock, Long> {
 
     // Consultas de stock aisladas por la empresa dueña
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"product", "product.category", "warehouse"})
     List<Stock> findByWarehouseIdAndUserId(Long warehouseId, Long tenantId);
 
     List<Stock> findByProductIdAndUserId(Long productId, Long tenantId);
@@ -18,5 +19,6 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
     boolean existsByProductIdAndWarehouseIdAndUserId(Long productId, Long warehouseId, Long tenantId);
 
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"product", "product.category", "warehouse"})
     List<Stock> findByUserId(Long tenantId);
 }

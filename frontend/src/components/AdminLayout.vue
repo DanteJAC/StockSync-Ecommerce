@@ -124,6 +124,7 @@ const menuItems = computed(() => {
 
   if (auth.isAdmin) {
     items.push({ title: 'Usuarios', icon: 'mdi-account-group', to: '/admin/usuarios' })
+    items.push({ title: 'Vistas', icon: 'mdi-eye', to: '/admin/visores' })
   }
 
   return items

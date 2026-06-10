@@ -4,7 +4,7 @@
 
     <v-container fluid class="py-12" max-width="480">
       <v-card class="pa-6" elevation="4">
-        <v-card-title class="text-h4 font-weight-bold text-center mb-2">
+        <v-card-title class="text-h5 text-md-h4 font-weight-bold text-center mb-2">
           Iniciar Sesión
         </v-card-title>
 
@@ -97,7 +97,15 @@ async function handleLogin() {
     if (data.forcePasswordChange) {
       router.push('/change-password')
     } else {
-      router.push('/admin')
+      if (auth.isAdmin) {
+        router.push('/admin')
+      } else if (auth.isBodega) {
+        router.push('/bodega')
+      } else if (auth.isLocal) {
+        router.push('/local')
+      } else {
+        router.push('/')
+      }
     }
   } catch (e) {
     error.value = e.response?.data?.message || 'Credenciales inválidas'

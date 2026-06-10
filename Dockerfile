@@ -1,5 +1,5 @@
 # Etapa 1: Build del Frontend (Vue)
-FROM node:18 AS frontend-build
+FROM node:20 AS frontend-build
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
@@ -13,6 +13,7 @@ WORKDIR /app/backend
 # Copiar el wrapper de maven y dependencias primero para cachear
 COPY backend/.mvn .mvn
 COPY backend/mvnw backend/pom.xml ./
+RUN sed -i 's/\r$//' mvnw
 RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline
 

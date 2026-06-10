@@ -4,6 +4,7 @@ import com.stockSync.backend.stock.mapper.StockMapper;
 import com.stockSync.backend.stock.dto.StockRequest;
 import com.stockSync.backend.stock.dto.StockResponse;
 import com.stockSync.backend.stock.dto.StockTransferRequest;
+import com.stockSync.backend.stock.dto.StockMovementResponse;
 import com.stockSync.backend.stock.model.Product;
 import com.stockSync.backend.stock.model.Stock;
 import com.stockSync.backend.stock.model.StockMovement;
@@ -20,6 +21,7 @@ import com.stockSync.backend.common.exception.ResourceNotFoundException;
 import com.stockSync.backend.common.exception.BadRequestException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +46,44 @@ public class StockServiceImpl extends BaseService implements StockService {
     @Override
     public List<StockResponse> getStocksByProduct(Long productId) {
         return stockMapper.toResponseList(stockRepository.findByProductIdAndUserId(productId, getTenantId()));
+    }
+
+    @Override
+    public List<StockMovementResponse> getMovements(String type, Long warehouseId) {
+        List<StockMovement> movements;
+        if (warehouseId != null) {
+            movements = stockMovementRepository.findBySourceWarehouseId(warehouseId);
+            movements.addAll(stockMovementRepository.findByDestinationWarehouseId(warehouseId));
+        } else {
+            movements = stockMovementRepository.findAll();
+        }
+
+        return movements.stream()
+                .filter(m -> type == null || type.equals(m.getMovementType()))
+                .filter(m -> m.getProduct().getUser().getId().equals(getTenantId()))
+                .map(m -> {
+                    StockMovementResponse res = new StockMovementResponse();
+                    res.setId(m.getId());
+                    res.setProductId(m.getProduct().getId());
+                    res.setProductName(m.getProduct().getName());
+                    if (m.getSourceWarehouse() != null) {
+                        res.setSourceWarehouseId(m.getSourceWarehouse().getId());
+                        res.setSourceWarehouseName(m.getSourceWarehouse().getName());
+                    }
+                    if (m.getDestinationWarehouse() != null) {
+                        res.setDestinationWarehouseId(m.getDestinationWarehouse().getId());
+                        res.setDestinationWarehouseName(m.getDestinationWarehouse().getName());
+                    }
+                    res.setQuantity(m.getQuantity());
+                    res.setMovementType(m.getMovementType());
+                    res.setUnitPrice(m.getProduct().getPrice());
+                    if (m.getProduct().getPrice() != null && m.getQuantity() != null) {
+                        res.setTotalPrice(m.getProduct().getPrice().multiply(new java.math.BigDecimal(m.getQuantity())));
+                    }
+                    res.setCreatedAt(m.getCreatedAt());
+                    return res;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -73,6 +113,43 @@ public class StockServiceImpl extends BaseService implements StockService {
                 .destinationWarehouse(warehouse)
                 .quantity(request.getQuantity())
                 .movementType("INGRESO")
+                .build();
+        stockMovementRepository.save(movement);
+
+        return stockMapper.toResponse(stockRepository.save(stock));
+    }
+
+    @Override
+    @Transactional
+    public StockResponse processSale(StockRequest request) {
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", "id", request.getProductId()));
+        Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Bodega", "id", request.getWarehouseId()));
+
+        if (!product.getUser().getId().equals(getTenantId()) || !warehouse.getUser().getId().equals(getTenantId())) {
+            throw new AccessDeniedException("Operación no permitida: los recursos no corresponden a tu organización.");
+        }
+
+        Stock stock = stockRepository.findByProductIdAndWarehouseIdAndUserId(product.getId(), warehouse.getId(), getTenantId())
+                .orElseThrow(() -> new BadRequestException("No hay stock disponible para realizar la venta."));
+
+        if (stock.getQuantity() < request.getQuantity()) {
+            throw new BadRequestException("Stock insuficiente para realizar la venta.");
+        }
+
+        stock.setQuantity(stock.getQuantity() - request.getQuantity());
+        stock.setUser(getTenantUser());
+
+        product.setStock(product.getStock() - request.getQuantity());
+        productRepository.save(product);
+
+        // Registro de auditoría del movimiento histórico
+        StockMovement movement = StockMovement.builder()
+                .product(product)
+                .sourceWarehouse(warehouse)
+                .quantity(request.getQuantity())
+                .movementType("VENTA")
                 .build();
         stockMovementRepository.save(movement);
 

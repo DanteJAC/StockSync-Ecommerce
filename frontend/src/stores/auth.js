@@ -15,6 +15,23 @@ export const useAuthStore = defineStore('auth', () => {
     const userRole = computed(() => user.value?.role || '')
     const userEmail = computed(() => user.value?.email || '')
     const userName = computed(() => user.value?.nombre || '')
+    const adminViewWarehouseId = ref(localStorage.getItem('adminViewWarehouseId') ? Number(localStorage.getItem('adminViewWarehouseId')) : null)
+
+    const assignedWarehouseId = computed(() => {
+        if (isAdmin.value && adminViewWarehouseId.value) {
+            return adminViewWarehouseId.value
+        }
+        return user.value?.assignedWarehouse?.id || null
+    })
+
+    function setAdminViewWarehouseId(id) {
+        adminViewWarehouseId.value = id
+        if (id) {
+            localStorage.setItem('adminViewWarehouseId', id)
+        } else {
+            localStorage.removeItem('adminViewWarehouseId')
+        }
+    }
 
     // Función auxiliar interna para guardar los datos de sesión y evitar repetir código
     function setSessionData(data, forcePasswordChange = false) {
@@ -52,6 +69,7 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.removeItem('jwt')
         localStorage.removeItem('user')
         localStorage.removeItem('mustChangePassword')
+        localStorage.removeItem('adminViewWarehouseId')
     }
 
     function logout() {
@@ -59,8 +77,8 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     return {
-        token, user, mustChangePassword,
-        isAuthenticated, isAdmin, isLocal, isBodega, userRole, userEmail, userName,
-        login, register, changePassword, logout, clear
+        token, user, mustChangePassword, adminViewWarehouseId,
+        isAuthenticated, isAdmin, isLocal, isBodega, userRole, userEmail, userName, assignedWarehouseId,
+        login, register, changePassword, logout, clear, setAdminViewWarehouseId
     }
 })

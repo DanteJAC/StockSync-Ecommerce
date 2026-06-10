@@ -1,0 +1,1 @@
+import{o as t}from"./index-DVhonZfD.js";function n(e){return t.post("/v1/stock-requests",e)}function o(){return t.get("/v1/stock-requests")}function c(e){return t.get(`/v1/stock-requests/destination/${e}`)}function u(e,s){return t.post("/v1/stock-requests/receive",{sku:e,destinationWarehouseId:s})}export{c as a,n as c,o as g,u as r};

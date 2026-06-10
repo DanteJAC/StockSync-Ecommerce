@@ -1,12 +1,12 @@
 <template>
   <v-container>
-    <h1 class="text-h4 font-weight-bold mb-6">
+    <h1 class="text-h5 text-md-h4 font-weight-bold mb-6">
       Seguimiento de Solicitudes
     </h1>
 
     <v-card>
       <v-card-text>
-        <v-table>
+        <v-table class="text-no-wrap">
           <thead>
           <tr>
             <th>ID</th>
@@ -23,17 +23,23 @@
               :key="solicitud.id"
           >
             <td>#{{ solicitud.id }}</td>
-            <td>{{ solicitud.producto }}</td>
-            <td>{{ solicitud.cantidad }}</td>
-            <td>{{ solicitud.fecha }}</td>
+            <td>{{ solicitud.productName }}</td>
+            <td>{{ solicitud.quantity }}</td>
+            <td>{{ new Date(solicitud.createdAt).toLocaleDateString() }}</td>
 
             <td>
               <v-chip
-                  :color="estadoColor(solicitud.estado)"
+                  :color="estadoColor(solicitud.status)"
               >
-                {{ solicitud.estado }}
+                {{ solicitud.status }}
               </v-chip>
             </td>
+          </tr>
+          <tr v-if="loading">
+            <td colspan="5" class="text-center">Cargando...</td>
+          </tr>
+          <tr v-else-if="solicitudes.length === 0">
+            <td colspan="5" class="text-center">No hay solicitudes</td>
           </tr>
           </tbody>
         </v-table>
@@ -43,40 +49,42 @@
 </template>
 
 <script setup>
-const solicitudes = [
-  {
-    id: 1,
-    producto: 'Coca Cola',
-    cantidad: 20,
-    fecha: '08/06/2026',
-    estado: 'Pendiente'
-  },
-  {
-    id: 2,
-    producto: 'Pepsi',
-    cantidad: 50,
-    fecha: '07/06/2026',
-    estado: 'En preparación'
-  },
-  {
-    id: 3,
-    producto: 'Chocolate',
-    cantidad: 10,
-    fecha: '06/06/2026',
-    estado: 'Enviado'
+import { ref, computed, onMounted } from 'vue'
+import { useStockRequestsStore } from '../../stores/stockRequests'
+import { useAuthStore } from '../../stores/auth'
+
+const store = useStockRequestsStore()
+const authStore = useAuthStore()
+const loading = ref(false)
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    if (authStore.assignedWarehouseId) {
+      await store.fetchOutgoing(authStore.assignedWarehouseId)
+    }
+  } finally {
+    loading.value = false
   }
-]
+})
+
+const solicitudes = computed(() => {
+  return [...store.outgoingRequests]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+})
 
 function estadoColor(estado) {
   switch (estado) {
-    case 'Pendiente':
+    case 'PENDIENTE':
       return 'warning'
-    case 'En preparación':
+    case 'APROBADO':
       return 'info'
-    case 'Enviado':
+    case 'ENVIADO':
       return 'primary'
-    case 'Recepcionada':
+    case 'RECIBIDO':
       return 'success'
+    case 'RECHAZADO':
+      return 'error'
     default:
       return 'grey'
   }

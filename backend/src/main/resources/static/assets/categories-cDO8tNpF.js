@@ -1,0 +1,1 @@
+import{o as t}from"./index-DVhonZfD.js";function a(){return t.get("/v1/categories")}function n(e){return t.post("/v1/categories",e)}function c(e,r){return t.put(`/v1/categories/${e}`,r)}function g(e){return t.delete(`/v1/categories/${e}`)}export{n as c,g as d,a as g,c as u};

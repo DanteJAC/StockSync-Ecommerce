@@ -5,7 +5,6 @@ import com.stockSync.backend.stock.dto.StockRequestResponse;
 import com.stockSync.backend.stock.service.StockRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

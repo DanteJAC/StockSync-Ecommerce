@@ -17,6 +17,8 @@ public interface StockMapper {
     @Mapping(source = "product.name", target = "productName")
     @Mapping(source = "warehouse.id", target = "warehouseId")
     @Mapping(source = "warehouse.name", target = "warehouseName")
+    @Mapping(source = "product.sku", target = "sku")
+    @Mapping(source = "product.category.name", target = "categoryName")
     StockResponse toResponse(Stock entity);
 
     //Mapea las listas completas automaticamente usando el metodo anterior

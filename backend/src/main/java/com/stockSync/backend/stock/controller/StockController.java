@@ -1,8 +1,10 @@
 package com.stockSync.backend.stock.controller;
 
+
 import com.stockSync.backend.stock.dto.StockRequest;
 import com.stockSync.backend.stock.dto.StockResponse;
 import com.stockSync.backend.stock.dto.StockTransferRequest;
+import com.stockSync.backend.stock.dto.StockMovementResponse;
 import com.stockSync.backend.stock.service.StockService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,15 @@ public class StockController {
         return ResponseEntity.ok(stockService.getAllStocks());
     }
 
+    //Ver historial de movimientos
+    @GetMapping("/movements")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LOCAL', 'BODEGA')")
+    public ResponseEntity<List<StockMovementResponse>> getMovements(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Long warehouseId) {
+        return ResponseEntity.ok(stockService.getMovements(type, warehouseId));
+    }
+
     //Ver stocks por bodega especifica
     @GetMapping("/warehouse/{warehouseId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'LOCAL', 'BODEGA')")
@@ -46,6 +57,13 @@ public class StockController {
     @PreAuthorize("hasAnyRole('ADMIN', 'LOCAL', 'BODEGA')")
     public ResponseEntity<StockResponse> addStock(@Valid @RequestBody StockRequest stockRequest){ // <-- Falta el @Valid
         return new ResponseEntity<>(stockService.addStock(stockRequest), HttpStatus.CREATED);
+    }
+
+    // Registrar una venta (resta al stock existente)
+    @PostMapping("/sale")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LOCAL')")
+    public ResponseEntity<StockResponse> processSale(@Valid @RequestBody StockRequest stockRequest){
+        return new ResponseEntity<>(stockService.processSale(stockRequest), HttpStatus.CREATED);
     }
 
     // Ajustar Stock (sobreescribe el valor - correciones manuales)

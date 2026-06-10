@@ -1,0 +1,1 @@
+import{ap as t,aB as e,aG as s,aL as a}from"./index-DVhonZfD.js";function i(){const o=s(!1);return t(()=>{window.requestAnimationFrame(()=>{o.value=!0})}),{ssrBootStyles:a(()=>o.value?void 0:{transition:"none !important"}),isBooted:e(o)}}export{i as u};
