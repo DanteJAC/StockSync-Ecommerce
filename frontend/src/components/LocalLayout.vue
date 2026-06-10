@@ -8,8 +8,11 @@
 
     <v-navigation-drawer
         v-model="drawer"
+        :permanent="!mobile"
+        :temporary="mobile"
         width="250"
         color="surface"
+        app
     >
       <div class="pa-4 d-flex align-center">
         <v-avatar color="primary">
@@ -97,11 +100,13 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { useDisplay } from 'vuetify'
 
 const auth = useAuthStore()
 const router = useRouter()
+const { mobile } = useDisplay()
 
-const drawer = ref(null)
+const drawer = ref(!mobile.value)
 
 const nombre = computed(() => auth.userName || 'Usuario Local')
 const email = computed(() => auth.userEmail || 'local@stocksync.cl')

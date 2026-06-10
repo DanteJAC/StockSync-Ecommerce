@@ -58,11 +58,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useWarehousesStore } from '../../stores/warehouses'
 import { useAuthStore } from '../../stores/auth'
+import { useUsersStore } from '../../stores/users'
 
 const route = useRoute()
 const router = useRouter()
 const store = useWarehousesStore()
 const authStore = useAuthStore()
+const usersStore = useUsersStore()
 
 const loading = ref(false)
 const warehouses = ref([])
@@ -73,11 +75,30 @@ const isLocalView = computed(() => route.path.includes('/visores/local'))
 onMounted(async () => {
   loading.value = true
   try {
-    await store.fetchAll()
-    // For now we show all warehouses since there is no strict database division by type.
-    // If needed, they could be filtered by finding Users with assigned roles. 
-    // Here we list all so the admin can choose any warehouse.
-    warehouses.value = store.warehouses
+    await Promise.all([
+      store.fetchAll(),
+      usersStore.fetchAll()
+    ])
+    
+    const requiredRole = isLocalView.value ? 'LOCAL' : 'BODEGA'
+    warehouses.value = store.warehouses.filter(wh => {
+      // 1. Check if there's a user explicitly assigned to this warehouse with the required role
+      const hasUserWithRole = usersStore.users.some(u => u.assignedWarehouse?.id === wh.id && u.role === requiredRole)
+      if (hasUserWithRole) return true
+      
+      // 2. Check if there is ANY user assigned with the OPPOSITE role (to exclude it)
+      const oppositeRole = isLocalView.value ? 'BODEGA' : 'LOCAL'
+      const hasUserWithOppositeRole = usersStore.users.some(u => u.assignedWarehouse?.id === wh.id && u.role === oppositeRole)
+      if (hasUserWithOppositeRole) return false
+
+      // 3. If no users are assigned, try to guess by its name or code
+      const nameOrCode = `${wh.name} ${wh.code}`.toLowerCase()
+      if (isLocalView.value) {
+        return nameOrCode.includes('local') || nameOrCode.includes('sucursal') || (!nameOrCode.includes('bodega') && !nameOrCode.includes('centro'))
+      } else {
+        return nameOrCode.includes('bodega') || nameOrCode.includes('centro') || nameOrCode.includes('almacen')
+      }
+    })
   } finally {
     loading.value = false
   }

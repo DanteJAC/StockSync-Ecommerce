@@ -1,9 +1,18 @@
 
 <template>
   <v-container fluid>
-    <h1 class="text-h4 font-weight-bold mb-6">
-      Ventas del Local
-    </h1>
+    <div class="d-flex justify-space-between align-center mb-6">
+      <h1 class="text-h4 font-weight-bold mb-0">
+        Ventas del Local
+      </h1>
+      <v-btn
+          color="primary"
+          prepend-icon="mdi-file-pdf-box"
+          @click="exportarPDF"
+      >
+        Exportar Resumen Diario
+      </v-btn>
+    </div>
 
     <v-row>
       <v-col cols="12" md="4">
@@ -108,6 +117,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useStockStore } from '../../stores/stock'
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
 
 const authStore = useAuthStore()
 const stockStore = useStockStore()
@@ -186,6 +197,45 @@ async function registrarVenta() {
   } finally {
     loading.value = false
   }
+}
+
+function exportarPDF() {
+  const doc = new jsPDF()
+
+  // Título
+  doc.setFontSize(18)
+  doc.text('Resumen Diario de Ventas', 14, 22)
+
+  // Subtítulo con fecha
+  doc.setFontSize(11)
+  doc.setTextColor(100)
+  doc.text(`Fecha de emisión: ${new Date().toLocaleString()}`, 14, 30)
+
+  // Resumen
+  doc.setTextColor(0)
+  doc.text(`Boletas Emitidas Hoy: ${boletasEmitidasHoy.value}`, 14, 40)
+  doc.text(`Productos Vendidos: ${productosVendidosHoy.value}`, 14, 46)
+  doc.text(`Total Recaudado: ${formatearDinero(ventasHoyTotal.value)}`, 14, 52)
+
+  // Tabla
+  const columnas = ['ID', 'Fecha', 'Producto', 'Cantidad', 'Total']
+  const filas = ventasHoy.value.map(venta => [
+    venta.id,
+    new Date(venta.createdAt).toLocaleTimeString(),
+    venta.productName,
+    venta.quantity,
+    formatearDinero(venta.totalPrice)
+  ])
+
+  doc.autoTable({
+    startY: 60,
+    head: [columnas],
+    body: filas,
+    theme: 'striped',
+    headStyles: { fillColor: [41, 128, 185] }
+  })
+
+  doc.save(`Resumen_Ventas_${new Date().toLocaleDateString().replace(/\//g, '-')}.pdf`)
 }
 </script>
 

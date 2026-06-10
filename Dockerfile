@@ -13,6 +13,7 @@ WORKDIR /app/backend
 # Copiar el wrapper de maven y dependencias primero para cachear
 COPY backend/.mvn .mvn
 COPY backend/mvnw backend/pom.xml ./
+RUN sed -i 's/\r$//' mvnw
 RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline
 
