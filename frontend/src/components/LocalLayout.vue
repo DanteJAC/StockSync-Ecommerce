@@ -1,8 +1,13 @@
 
 <template>
   <v-app>
+    <v-app-bar class="d-md-none" color="surface" elevation="1">
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-title>StockSync</v-app-bar-title>
+    </v-app-bar>
+
     <v-navigation-drawer
-        permanent
+        v-model="drawer"
         width="250"
         color="surface"
     >
@@ -78,13 +83,17 @@
 </template>
 
 <script setup>
-  const nombre = 'Usuario Local'
-  const email = 'local@stocksync.cl'
+import { ref } from 'vue' // <-- Añadimos ref para la reactividad
 
-  const inicial = nombre.charAt(0)
+// Variable inteligente que controla el menú.
+// En 'null', Vuetify decide automáticamente si mostrarlo (en PC) u ocultarlo (en celular)
+const drawer = ref(null)
+
+const nombre = 'Usuario Local'
+const email = 'local@stocksync.cl'
+
+const inicial = nombre.charAt(0)
 </script>
 
-
 <style scoped>
-
 </style>
