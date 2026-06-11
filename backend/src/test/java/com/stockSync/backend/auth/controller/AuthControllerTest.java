@@ -42,7 +42,10 @@ public class AuthControllerTest {
 
     @Test
     public void testLogin() throws Exception {
-        LoginRequest request = new LoginRequest("test@test.com", "password");
+        LoginRequest request = LoginRequest.builder()
+                .email("test@test.com")
+                .password("password")
+                .build();
         AuthResponse response = AuthResponse.builder()
                 .token("mock-token")
                 .email("test@test.com")
