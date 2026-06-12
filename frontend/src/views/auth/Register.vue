@@ -37,7 +37,7 @@
             <v-text-field
               v-model="password"
               label="Contraseña"
-              :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
               :type="showPassword ? 'text' : 'password'"
               @click:append-inner="showPassword = !showPassword"
               prepend-inner-icon="mdi-lock"
