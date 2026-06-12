@@ -14,5 +14,6 @@ public class StockRequestResponse {
     private String destinationWarehouseName;
     private Integer quantity;
     private String status;
+    private String trackingSku;
     private LocalDateTime createdAt;
 }

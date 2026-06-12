@@ -136,10 +136,16 @@
                 <v-list-item-subtitle>
                   Cantidad: {{ despacho.quantity }}
                 </v-list-item-subtitle>
-
               </v-list-item>
 
             </v-list>
+            
+            <div class="mt-4" v-if="despacho.trackingSku">
+              <strong>SKU de Envío:</strong>
+              <v-chip color="secondary" variant="flat" size="small" class="ml-2 font-weight-bold">
+                {{ despacho.trackingSku }}
+              </v-chip>
+            </div>
 
           </v-card-text>
 
@@ -165,12 +171,36 @@
 
     </v-row>
 
+    <!-- Dialogo de éxito -->
+    <v-dialog v-model="showSuccessDialog" max-width="500">
+      <v-card class="text-center pa-6">
+        <v-icon size="64" color="success" class="mb-4">mdi-check-circle</v-icon>
+        <h3 class="text-h5 mb-2">Despacho Confirmado</h3>
+        <p class="mb-4">El pedido ha sido despachado exitosamente.</p>
+        
+        <v-card variant="tonal" color="info" class="pa-4 mb-6">
+          <div class="text-subtitle-2 mb-2">CÓDIGO DE BARRAS / QR PARA RECEPCIÓN</div>
+          <div class="d-flex justify-center mb-4">
+            <qrcode-vue :value="currentTrackingSku" :size="200" level="H" />
+          </div>
+          <div class="text-h4 font-weight-bold tracking-widest">
+            {{ currentTrackingSku }}
+          </div>
+        </v-card>
+        
+        <v-btn color="primary" block @click="showSuccessDialog = false">
+          Aceptar
+        </v-btn>
+      </v-card>
+    </v-dialog>
+
   </v-container>
 </template>
 
 <script setup>
 
 import { ref, computed, onMounted } from 'vue'
+import QrcodeVue from 'qrcode.vue'
 import { useStockRequestsStore } from '../../stores/stockRequests'
 import { useAuthStore } from '../../stores/auth'
 
@@ -179,6 +209,8 @@ const authStore = useAuthStore()
 
 const loading = ref(false)
 const loadingDespacho = ref(null)
+const showSuccessDialog = ref(false)
+const currentTrackingSku = ref('')
 
 onMounted(async () => {
   loading.value = true
@@ -207,7 +239,11 @@ const entregadosHoyCount = computed(() => despachos.value.filter(d => d.estado =
 async function despachar(despacho) {
   loadingDespacho.value = despacho.id
   try {
-    await store.updateStatus(despacho.id, 'ENVIADO')
+    const response = await store.updateStatus(despacho.id, 'ENVIADO')
+    if (response && response.trackingSku) {
+      currentTrackingSku.value = response.trackingSku
+      showSuccessDialog.value = true
+    }
     await store.fetchIncoming(authStore.assignedWarehouseId)
   } catch (e) {
     alert('Error al despachar el pedido')
