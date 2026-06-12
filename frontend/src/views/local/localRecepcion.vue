@@ -138,7 +138,10 @@ const cameraError = ref('')
 
 function onDetect(detectedCodes) {
   if (detectedCodes && detectedCodes.length > 0) {
-    const code = detectedCodes[0].rawValue
+    const detected = detectedCodes[0]
+    const code = typeof detected === 'string' ? detected : (detected.rawValue || detected.content)
+    if (!code) return
+    
     scannerSku.value = code
     showCameraDialog.value = false
     procesarEscaneo()

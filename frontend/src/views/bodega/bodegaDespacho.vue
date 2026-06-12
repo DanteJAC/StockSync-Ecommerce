@@ -181,7 +181,9 @@
         <v-card variant="tonal" color="info" class="pa-4 mb-6">
           <div class="text-subtitle-2 mb-2">CÓDIGO DE BARRAS / QR PARA RECEPCIÓN</div>
           <div class="d-flex justify-center mb-4">
-            <qrcode-vue :value="currentTrackingSku" :size="200" level="H" />
+            <div style="background-color: white; padding: 16px; border-radius: 8px; display: inline-block;">
+              <qrcode-vue :value="currentTrackingSku" :size="200" level="H" />
+            </div>
           </div>
           <div class="text-h4 font-weight-bold tracking-widest">
             {{ currentTrackingSku }}
