@@ -162,6 +162,16 @@
             >
               Despachar
             </v-btn>
+            
+            <v-btn
+                v-if="despacho.estado === 'ENVIADO' && despacho.trackingSku"
+                color="secondary"
+                variant="tonal"
+                prepend-icon="mdi-qrcode"
+                @click="verCodigoQR(despacho.trackingSku)"
+            >
+              Ver QR
+            </v-btn>
 
           </v-card-actions>
 
@@ -171,12 +181,12 @@
 
     </v-row>
 
-    <!-- Dialogo de éxito -->
+    <!-- Dialogo de QR -->
     <v-dialog v-model="showSuccessDialog" max-width="500">
       <v-card class="text-center pa-6">
-        <v-icon size="64" color="success" class="mb-4">mdi-check-circle</v-icon>
-        <h3 class="text-h5 mb-2">Despacho Confirmado</h3>
-        <p class="mb-4">El pedido ha sido despachado exitosamente.</p>
+        <v-icon size="64" color="primary" class="mb-4">mdi-qrcode-scan</v-icon>
+        <h3 class="text-h5 mb-2">Código de Envío</h3>
+        <p class="mb-4">Este código QR debe ser escaneado en el local para confirmar la recepción del despacho.</p>
         
         <v-card variant="tonal" color="info" class="pa-4 mb-6">
           <div class="text-subtitle-2 mb-2">CÓDIGO DE BARRAS / QR PARA RECEPCIÓN</div>
@@ -252,6 +262,11 @@ async function despachar(despacho) {
   } finally {
     loadingDespacho.value = null
   }
+}
+
+function verCodigoQR(sku) {
+  currentTrackingSku.value = sku
+  showSuccessDialog.value = true
 }
 
 function estadoColor(estado) {
