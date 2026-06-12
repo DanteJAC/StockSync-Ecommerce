@@ -68,9 +68,34 @@ public class StockRequestServiceImpl extends BaseService implements StockRequest
     @Override
     @Transactional
     public List<StockRequestResponse> createRequestsBatch(List<StockRequestCreateDto> dtos) {
-        return dtos.stream()
-                .map(this::createRequest)
-                .collect(Collectors.toList());
+        Map<Long, List<StockRequestCreateDto>> groupedBySource = dtos.stream()
+                .collect(Collectors.groupingBy(StockRequestCreateDto::getSourceWarehouseId));
+
+        List<StockRequestResponse> responses = new ArrayList<>();
+        for (Map.Entry<Long, List<StockRequestCreateDto>> entry : groupedBySource.entrySet()) {
+            String groupCode = "REQ-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            for (StockRequestCreateDto dto : entry.getValue()) {
+                Warehouse sourceWh = warehouseRepository.findById(dto.getSourceWarehouseId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", dto.getSourceWarehouseId()));
+                Warehouse destWh = warehouseRepository.findById(dto.getDestinationWarehouseId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", dto.getDestinationWarehouseId()));
+                Product product = productRepository.findById(dto.getProductId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Product", "id", dto.getProductId()));
+
+                StockRequest request = StockRequest.builder()
+                        .product(product)
+                        .sourceWarehouse(sourceWh)
+                        .destinationWarehouse(destWh)
+                        .quantity(dto.getQuantity())
+                        .status("PENDIENTE")
+                        .requestGroupCode(groupCode)
+                        .build();
+
+                stockRequestRepository.save(request);
+                responses.add(stockRequestMapper.toResponse(request));
+            }
+        }
+        return responses;
     }
 
     @Override

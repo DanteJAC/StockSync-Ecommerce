@@ -15,5 +15,6 @@ public class StockRequestResponse {
     private Integer quantity;
     private String status;
     private String trackingSku;
+    private String requestGroupCode;
     private LocalDateTime createdAt;
 }
