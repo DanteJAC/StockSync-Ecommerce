@@ -67,7 +67,7 @@ public class AuthControllerTest {
 
     @Test
     public void testRegister() throws Exception {
-        RegisterRequest request = new RegisterRequest("Test User", "test@test.com", "Password123!");
+        RegisterRequest request = new RegisterRequest("Test Company", "Test User", "test@test.com", "Password123!");
 
         mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
